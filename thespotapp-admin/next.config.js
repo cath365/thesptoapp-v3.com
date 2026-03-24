@@ -8,7 +8,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "thespotapp-144e2.firebasestorage.app",
+        hostname: "spot-app-575e9.firebasestorage.app",
       },
     ],
   },

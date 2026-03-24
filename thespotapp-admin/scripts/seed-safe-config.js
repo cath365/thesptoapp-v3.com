@@ -21,12 +21,12 @@ const { initializeApp } = require("firebase/app");
 const { getFirestore, doc, setDoc, getDoc } = require("firebase/firestore");
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAHQV9uuP4of7pqYuWy-0cmJNtSbKvfgMM",
-  authDomain: "thespotapp-144e2.firebaseapp.com",
-  projectId: "thespotapp-144e2",
-  storageBucket: "thespotapp-144e2.firebasestorage.app",
-  messagingSenderId: "889053884899",
-  appId: "1:889053884899:web:ecf2c55bbb060947c430d6",
+  apiKey: "AIzaSyCsbVq08esnwhZHFwj9dcEjnAdCnpaSIs0",
+  authDomain: "spot-app-575e9.firebaseapp.com",
+  projectId: "spot-app-575e9",
+  storageBucket: "spot-app-575e9.firebasestorage.app",
+  messagingSenderId: "200356116293",
+  appId: "1:200356116293:web:53f01b90e1d4c4812db02c",
 };
 
 const app = initializeApp(firebaseConfig);
