@@ -3,6 +3,7 @@
   "main": "expo-router/entry",
   "version": "2.1.0",
   "scripts": {
+    "eas-build-pre-install": "chmod -R u+rwx . && echo 'Permissions fixed'",
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
