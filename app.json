@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "The spot app",
-    "slug": "thesptoapp-v2-main",
-    "owner": "spot-app23",
+    "slug": "the-spot-app-v2",
+    "owner": "emmanuel4534",
     "extra": {
       "eas": {
-        "projectId": "b0e79767-dd44-42f7-80d7-13a64028ed08"
+        "projectId": "7afa0315-0ed5-40d7-aa1d-90c8ea3bfc94"
       }
     },
     "ios": {

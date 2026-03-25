@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "The spot app",
-    "slug": "the-spot-app",
-    "owner": "spot-app23s-organization",
+    "slug": "the-spot-app-v2",
+    "owner": "emmanuel4534",
     "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -40,7 +40,8 @@
         "android.permission.CAMERA",
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.INTERNET"
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -78,7 +79,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "38a9ec42-f71d-4462-95c5-c80e1244d498"
+        "projectId": "7afa0315-0ed5-40d7-aa1d-90c8ea3bfc94"
       }
     }
   }
