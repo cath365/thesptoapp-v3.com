@@ -2,14 +2,15 @@ import SignInRequired from "@/components/SignInRequired";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { SpotColors } from "@/constants/Colors";
-import { deleteAccount, logOut, updateDisplayName, updatePhotoURL, changePassword } from "@/lib/auth";
-import { storage } from "@/lib/firebase";
+import { deleteAccount, logOut, updateDisplayName, changePassword } from "@/lib/auth";
+import { db } from "@/lib/firebase";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { syncLocalNotifications } from "@/hooks/usePushNotifications";
 import { LinearGradient } from "expo-linear-gradient";
 import * as ImagePicker from "expo-image-picker";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import * as FileSystem from "expo-file-system";
+import { doc, updateDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -57,6 +58,16 @@ export default function ProfileScreen() {
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [isChangingPw, setIsChangingPw] = useState(false);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+
+  // Load cached avatar on mount
+  useEffect(() => {
+    if (user?.uid) {
+      AsyncStorage.getItem(`avatar_${user.uid}`).then((cached) => {
+        if (cached) setAvatarUri(cached);
+      });
+    }
+  }, [user?.uid]);
 
   const [settings, setSettings] = useState<ProfileSettings>({
     notifications: {
@@ -158,7 +169,7 @@ export default function ProfileScreen() {
   };
 
   const handlePrivacyPolicy = () => {
-    Linking.openURL("https://thespotapp.com/privacy");
+    Linking.openURL("https://thesptoapp-v2.vercel.app/privacy");
   };
 
   const handleDeleteAccount = () => {
@@ -199,18 +210,41 @@ export default function ProfileScreen() {
 
     setIsUploadingPhoto(true);
     try {
-      const uri = result.assets[0].uri;
-      const response = await fetch(uri);
-      const blob = await response.blob();
-      const storageRef = ref(storage, `avatars/${user!.uid}`);
-      await uploadBytes(storageRef, blob);
-      const downloadURL = await getDownloadURL(storageRef);
-      const updateResult = await updatePhotoURL(downloadURL);
-      if (updateResult.error) {
-        Alert.alert("Error", updateResult.error);
+      const asset = result.assets[0];
+      const uri = asset.uri;
+
+      // Read file as base64
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const mimeType =
+        asset.mimeType ??
+        (uri.toLowerCase().endsWith(".png") ? "image/png" : "image/jpeg");
+
+      const dataUrl = `data:${mimeType};base64,${base64}`;
+
+      // Save locally for instant display
+      await AsyncStorage.setItem(`avatar_${user!.uid}`, dataUrl);
+      setAvatarUri(dataUrl);
+
+      // Persist to Firestore (user doc) for cross-device sync
+      const userRef = doc(db, "users", user!.uid);
+      try {
+        await updateDoc(userRef, { avatarBase64: dataUrl });
+      } catch {
+        // Doc may not exist yet — create it with required role field
+        await setDoc(userRef, {
+          avatarBase64: dataUrl,
+          email: user!.email,
+          displayName: user!.displayName || user!.email?.split("@")[0] || "User",
+          role: "user",
+          createdAt: serverTimestamp(),
+        });
       }
-    } catch {
-      Alert.alert("Error", "Failed to upload photo. Please try again.");
+    } catch (err: any) {
+      console.error("[Profile] Photo upload failed:", err?.message ?? err);
+      Alert.alert("Error", "Failed to save photo. Please try again.");
     } finally {
       setIsUploadingPhoto(false);
     }
@@ -253,8 +287,8 @@ export default function ProfileScreen() {
       // Re-sync local notification schedules when notification prefs change
       if (category === "notifications") {
         AsyncStorage.setItem("profile_settings", JSON.stringify(next)).then(() => {
-          syncLocalNotifications();
-        });
+          syncLocalNotifications().catch(() => {});
+        }).catch(() => {});
       }
       return next;
     });
@@ -292,9 +326,9 @@ export default function ProfileScreen() {
                   colors={[SpotColors.blush, SpotColors.rose] as any}
                   style={styles.avatarGradient}
                 />
-                {user.photoURL ? (
+                {avatarUri || user.photoURL ? (
                   <Image
-                    source={{ uri: user.photoURL }}
+                    source={{ uri: avatarUri || user.photoURL! }}
                     style={styles.avatarImage}
                     resizeMode="cover"
                   />
@@ -875,6 +909,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderRadius: 24,
+    pointerEvents: 'none',
   },
   cardTitle: {
     color: SpotColors.deepPink,

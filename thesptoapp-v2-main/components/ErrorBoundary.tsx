@@ -1,6 +1,6 @@
 import { SpotColors } from '@/constants/Colors';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface Props {
   children: ReactNode;
@@ -21,9 +21,14 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('[ErrorBoundary] Caught render error:', error?.message ?? error);
+    console.error('[ErrorBoundary] Caught render error:', {
+      message: error?.message,
+      stack: error?.stack,
+      platform: Platform.OS,
+      isPad: Platform.OS === 'ios' && (Platform as any).isPad,
+      version: Platform.Version,
+    });
     console.error('[ErrorBoundary] Component stack:', info.componentStack);
-    console.error('[ErrorBoundary] Error stack:', error?.stack);
   }
 
   handleRetry = () => {
@@ -34,14 +39,17 @@ export default class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <View style={styles.container}>
-          <Text style={styles.emoji}>😔</Text>
-          <Text style={styles.title}>Something went wrong</Text>
+          <Text style={styles.emoji}>🌸</Text>
+          <Text style={styles.title}>Oops! Let's try that again</Text>
           <Text style={styles.message}>
-            The app ran into an unexpected error. Please try again.
+            The Spot App hit a bump. This is usually temporary — tap below to reload.
           </Text>
           <TouchableOpacity style={styles.button} onPress={this.handleRetry}>
-            <Text style={styles.buttonText}>Try Again</Text>
+            <Text style={styles.buttonText}>Reload App</Text>
           </TouchableOpacity>
+          <Text style={styles.hint}>
+            If this keeps happening, try closing and reopening the app.
+          </Text>
         </View>
       );
     }
@@ -85,5 +93,13 @@ const styles = StyleSheet.create({
     color: SpotColors.textOnPrimary,
     fontWeight: '600',
     fontSize: 16,
+  },
+  hint: {
+    fontSize: 13,
+    color: SpotColors.textSecondary,
+    textAlign: 'center',
+    marginTop: 16,
+    lineHeight: 18,
+    opacity: 0.7,
   },
 });

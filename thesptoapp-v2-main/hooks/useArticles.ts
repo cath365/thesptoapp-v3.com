@@ -62,12 +62,16 @@ export function useArticles() {
       setError(null);
     } catch {
       // Try loading from cache when offline
-      const cached = await getCached<ArticleMetadata[]>(ARTICLES_CACHE_KEY);
-      if (cached && cached.length > 0) {
-        setArticles(cached);
-        setIsOffline(true);
-        setError(null);
-      } else {
+      try {
+        const cached = await getCached<ArticleMetadata[]>(ARTICLES_CACHE_KEY);
+        if (cached && cached.length > 0) {
+          setArticles(cached);
+          setIsOffline(true);
+          setError(null);
+        } else {
+          setError('Failed to fetch articles');
+        }
+      } catch {
         setError('Failed to fetch articles');
       }
     } finally {
@@ -119,11 +123,15 @@ export function useArticle(articleId: string) {
         }
       } catch {
         // Try loading from cache when offline
-        const cached = await getCached<Article>(`article_${articleId}`);
-        if (cached) {
-          setArticle(cached);
-          setError(null);
-        } else {
+        try {
+          const cached = await getCached<Article>(`article_${articleId}`);
+          if (cached) {
+            setArticle(cached);
+            setError(null);
+          } else {
+            setError('Failed to fetch article');
+          }
+        } catch {
           setError('Failed to fetch article');
         }
       } finally {
@@ -175,9 +183,9 @@ export function useArticleSearch(searchQuery: string, category?: string) {
       if (queryText.trim()) {
         const searchLower = queryText.toLowerCase();
         articles = articles.filter(article =>
-          article.title.toLowerCase().includes(searchLower) ||
-          article.summary.toLowerCase().includes(searchLower) ||
-          (article.tags && article.tags.some(tag => tag.toLowerCase().includes(searchLower)))
+          (article.title ?? '').toLowerCase().includes(searchLower) ||
+          (article.summary ?? '').toLowerCase().includes(searchLower) ||
+          (article.tags && article.tags.some(tag => (tag ?? '').toLowerCase().includes(searchLower)))
         );
       }
 

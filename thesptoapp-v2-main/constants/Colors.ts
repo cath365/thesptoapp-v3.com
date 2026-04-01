@@ -7,11 +7,11 @@
  */
 
 // Re-export the canonical brand palette
-import { SpotColors } from './SpotColors';
-export { SpotColors } from './SpotColors';
+import { SpotColors, SpotColorsDark } from './SpotColors';
+export { SpotColors, SpotColorsDark } from './SpotColors';
 
 const tintColorLight = SpotColors.primary;
-const tintColorDark = SpotColors.primaryLight;
+const tintColorDark = SpotColorsDark.primary;
 
 export const Colors = {
   light: {

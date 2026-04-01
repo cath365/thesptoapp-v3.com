@@ -57,7 +57,11 @@ export function OnboardingPager({
   };
 
   const handleFinish = async () => {
-    await completeOnboarding();
+    try {
+      await completeOnboarding();
+    } catch {
+      // Even if persistence fails, proceed to auth
+    }
     router.replace('/(auth)/sign-in');
   };
 

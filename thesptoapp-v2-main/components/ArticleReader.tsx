@@ -313,7 +313,7 @@ export default function ArticleReader({ article }: ArticleReaderProps) {
                 style={styles.sourceItem}
                 onPress={() => {
                   if (source.startsWith('http')) {
-                    Linking.openURL(source);
+                    Linking.openURL(source).catch(() => {});
                   }
                 }}
               >

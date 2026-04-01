@@ -8,16 +8,18 @@ import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors, SpotColors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { t } = useLanguage();
+  const { iconSize } = useResponsiveLayout();
   const inactiveColor = Colors[colorScheme ?? 'light'].tabIconDefault;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: SpotColors.rose,
+        tabBarActiveTintColor: SpotColors.primary,
         tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         headerShown: false,
         tabBarButton: HapticTab,
@@ -27,7 +29,12 @@ export default function TabLayout() {
             // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
           },
-          default: {},
+          default: {
+            backgroundColor: SpotColors.surface,
+            borderTopWidth: 1,
+            borderTopColor: SpotColors.border,
+            elevation: 8,
+          },
         }),
       }}>
       <Tabs.Screen
@@ -37,9 +44,9 @@ export default function TabLayout() {
           tabBarAccessibilityLabel: 'Home tab',
           tabBarIcon: ({ focused }) => (
             <MaterialIcons 
-              size={28} 
+              size={iconSize} 
               name="favorite" 
-              color={focused ? SpotColors.rose : inactiveColor} 
+              color={focused ? SpotColors.primary : inactiveColor} 
             />
           ),
         }}
@@ -51,9 +58,9 @@ export default function TabLayout() {
           tabBarAccessibilityLabel: 'Period tracker tab',
           tabBarIcon: ({ focused }) => (
             <MaterialIcons 
-              size={28} 
+              size={iconSize} 
               name="local-florist" 
-              color={focused ? SpotColors.lavender : inactiveColor} 
+              color={focused ? SpotColors.rose : inactiveColor} 
             />
           ),
         }}
@@ -65,7 +72,7 @@ export default function TabLayout() {
           tabBarAccessibilityLabel: 'Journal tab',
           tabBarIcon: ({ focused }) => (
             <MaterialIcons 
-              size={28} 
+              size={iconSize} 
               name="auto-stories" 
               color={focused ? SpotColors.primary : inactiveColor} 
             />
@@ -79,7 +86,7 @@ export default function TabLayout() {
           tabBarAccessibilityLabel: 'Library tab',
           tabBarIcon: ({ focused }) => (
             <MaterialIcons
-              size={28}
+              size={iconSize}
               name="bookmark"
               color={focused ? SpotColors.lavender : inactiveColor}
             />
@@ -93,9 +100,9 @@ export default function TabLayout() {
           tabBarAccessibilityLabel: 'Profile tab',
           tabBarIcon: ({ focused }) => (
             <MaterialIcons 
-              size={28} 
+              size={iconSize} 
               name="face" 
-              color={focused ? SpotColors.softPink : inactiveColor} 
+              color={focused ? SpotColors.primary : inactiveColor} 
             />
           ),
         }}

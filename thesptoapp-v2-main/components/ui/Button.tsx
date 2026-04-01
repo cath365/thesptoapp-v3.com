@@ -1,7 +1,9 @@
 import { SpotColors } from '@/constants/Colors';
+import * as Haptics from 'expo-haptics';
 import React from 'react';
 import {
     ActivityIndicator,
+    Platform,
     StyleSheet,
     Text,
     TextStyle,
@@ -17,6 +19,7 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline';
   style?: ViewStyle;
   textStyle?: TextStyle;
+  accessibilityLabel?: string;
 }
 
 export function Button({
@@ -27,6 +30,7 @@ export function Button({
   variant = 'primary',
   style,
   textStyle,
+  accessibilityLabel,
 }: ButtonProps) {
   const getButtonStyle = () => {
     switch (variant) {
@@ -50,6 +54,17 @@ export function Button({
     }
   };
 
+  const handlePress = () => {
+    if (Platform.OS === 'ios') {
+      try {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      } catch {
+        // iPad and some devices lack a Taptic Engine — silently ignore
+      }
+    }
+    onPress();
+  };
+
   return (
     <TouchableOpacity
       style={[
@@ -57,15 +72,18 @@ export function Button({
         disabled && styles.disabledButton,
         style,
       ]}
-      onPress={onPress}
+      onPress={handlePress}
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
     >
       {loading ? (
         <ActivityIndicator 
           color={variant === 'outline' ? SpotColors.primary : SpotColors.textOnPrimary} 
         />
       ) : (
-        <Text style={[...getTextStyle(), textStyle]}>{title}</Text>
+        <Text style={[...getTextStyle(), textStyle]} maxFontSizeMultiplier={1.3}>{title}</Text>
       )}
     </TouchableOpacity>
   );
@@ -74,11 +92,11 @@ export function Button({
 const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderRadius: 16,
+    paddingVertical: 14,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 56,
+    minHeight: 52,
   },
   primaryButton: {
     backgroundColor: SpotColors.primary,
@@ -106,7 +124,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
     letterSpacing: 0.3,
   },
   primaryButtonText: {

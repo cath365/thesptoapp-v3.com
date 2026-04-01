@@ -8,15 +8,19 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 // Configure how notifications are presented when the app is in the foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+try {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+} catch {
+  // Silently ignore if notifications API is unavailable (e.g. on beta OS versions)
+}
 
 async function registerForPushNotificationsAsync(): Promise<string | null> {
   // Push notifications only work on physical devices
@@ -145,22 +149,29 @@ export function usePushNotifications(userId: string | null) {
       return;
     }
 
-    registerForPushNotificationsAsync().then((token) => {
-      if (token && !tokenSaved.current) {
-        tokenSaved.current = true;
-        // Store the token in the user's Firestore document
-        // The admin panel reads `expoPushToken` from here
-        updateDoc(doc(db, "users", userId), { expoPushToken: token }).catch(
-          () => {
-            // Silently fail — token will be retried on next app launch
-            tokenSaved.current = false;
-          }
-        );
-      }
-    });
+    registerForPushNotificationsAsync()
+      .then((token) => {
+        if (token && !tokenSaved.current) {
+          tokenSaved.current = true;
+          // Store the token in the user's Firestore document
+          // The admin panel reads `expoPushToken` from here
+          updateDoc(doc(db, "users", userId), { expoPushToken: token }).catch(
+            () => {
+              // Silently fail — token will be retried on next app launch
+              tokenSaved.current = false;
+            }
+          );
+        }
+      })
+      .catch((e) => {
+        // Notifications may not be available on all devices/OS versions
+        console.warn('[PushNotifications] Registration failed:', e);
+      });
 
     // Sync local notification schedules based on user preferences
-    syncLocalNotifications();
+    syncLocalNotifications().catch((e) => {
+      console.warn('[PushNotifications] syncLocalNotifications failed:', e);
+    });
   }, [userId]);
 }
 

@@ -234,9 +234,14 @@ export default function PeriodTrackerScreen() {
   // Save log for a day
   async function handleSaveLog() {
     setSaving(true);
-    await logDay({ date: logDate, symptoms: logSymptoms, notes: logNotes });
-    setSaving(false);
-    setShowLogModal(false);
+    try {
+      await logDay({ date: logDate, symptoms: logSymptoms, notes: logNotes });
+      setShowLogModal(false);
+    } catch {
+      Alert.alert('Error', 'Could not save log. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   // Save cycle info
@@ -257,14 +262,19 @@ export default function PeriodTrackerScreen() {
       return;
     }
     setSaving(true);
-    const existingCycleId = cycles.length > 0 ? cycles[0].id : undefined;
-    await addOrUpdateCycle({
-      startDate: cycleStart,
-      avgCycleLength: len,
-      periodLength: pLen,
-    }, existingCycleId);
-    setSaving(false);
-    setShowCycleModal(false);
+    try {
+      const existingCycleId = cycles.length > 0 ? cycles[0].id : undefined;
+      await addOrUpdateCycle({
+        startDate: cycleStart,
+        avgCycleLength: len,
+        periodLength: pLen,
+      }, existingCycleId);
+      setShowCycleModal(false);
+    } catch {
+      Alert.alert('Error', 'Could not save cycle info. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   // Animation for phase card

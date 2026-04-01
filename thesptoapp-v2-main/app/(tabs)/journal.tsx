@@ -105,7 +105,11 @@ export default function JournalScreen() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            await deleteEntry(id);
+            try {
+              await deleteEntry(id);
+            } catch {
+              Alert.alert('Error', 'Could not delete entry. Please try again.');
+            }
           },
         },
       ]
@@ -125,10 +129,15 @@ export default function JournalScreen() {
   const handleSaveEdit = async (id: string) => {
     if (!editingText.trim()) return;
     setIsUpdating(true);
-    await updateEntry(id, { notes: editingText.trim() });
-    setEditingId(null);
-    setEditingText("");
-    setIsUpdating(false);
+    try {
+      await updateEntry(id, { notes: editingText.trim() });
+      setEditingId(null);
+      setEditingText("");
+    } catch {
+      Alert.alert('Error', 'Could not save changes. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (

@@ -32,13 +32,85 @@ export interface SignInData {
   password: string;
 }
 
+// ── Helpers ─────────────────────────────────────────────────────────────
+
 // Auth persistence is now handled natively by initializeAuth + getReactNativePersistence
 // in lib/firebase.ts. No manual initialization needed.
+
+/** Race a promise against a timeout. */
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
+/** Returns true if the error is transient and the request should be retried. */
+function isRetryableError(error: any): boolean {
+  if (error instanceof Error && error.message.includes('timed out')) return true;
+  const code = (error as AuthError)?.code;
+  return code === 'auth/network-request-failed' || code === 'auth/internal-error';
+}
+
+/** Returns true if the error is a credential / user issue (never retry). */
+function isCredentialError(error: any): boolean {
+  const code = (error as AuthError)?.code;
+  return (
+    code === 'auth/invalid-credential' ||
+    code === 'auth/user-not-found' ||
+    code === 'auth/wrong-password' ||
+    code === 'auth/invalid-email' ||
+    code === 'auth/user-disabled' ||
+    code === 'auth/too-many-requests'
+  );
+}
+
+/**
+ * Lightweight connectivity pre-check.
+ * Uses Apple's captive-portal detection URL — always reachable on any iOS/iPadOS
+ * device with an active internet connection and not blocked by any corporate proxy.
+ */
+export async function checkConnectivity(): Promise<boolean> {
+  async function probe(url: string, ms: number): Promise<boolean> {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      const res = await fetch(url, {
+        method: 'HEAD',
+        signal: controller.signal,
+        cache: 'no-store',
+      });
+      clearTimeout(timer);
+      return res.status < 600;
+    } catch {
+      return false;
+    }
+  }
+
+  // Try Apple's captive-portal URL first, then fall back to Google's connectivity check.
+  // iPadOS 26+ may restrict captive.apple.com in certain network configurations.
+  if (await probe('https://captive.apple.com/hotspot-detect.html', 5000)) return true;
+  return probe('https://www.google.com/generate_204', 5000);
+}
 
 // Sign up with email and password
 export async function signUp({ email, password, displayName }: SignUpData): Promise<AuthResponse> {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    if (!auth) {
+      console.error('[Auth] Firebase auth is not initialised');
+      return { user: null, error: 'Sign up is temporarily unavailable. Please restart the app and try again.' };
+    }
+
+    const trimmedEmail = email.trim();
+    console.log('[Auth] signUp attempt for:', trimmedEmail);
+
+    const userCredential = await withTimeout(
+      createUserWithEmailAndPassword(auth, trimmedEmail, password),
+      15000,
+      'Sign up'
+    );
     const user = userCredential.user;
 
     // Update user profile with display name if provided
@@ -69,40 +141,73 @@ export async function signUp({ email, password, displayName }: SignUpData): Prom
     }
 
     return { user, error: null };
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[Auth] signUp error:', error?.code || error?.message || error);
+    if (error instanceof Error && error.message.includes('timed out')) {
+      return { user: null, error: 'Sign up is taking too long. Please check your internet connection and try again.' };
+    }
     const authError = error as AuthError;
     return { user: null, error: getAuthErrorMessage(authError) };
   }
 }
 
-// Helper: race a promise against a timeout
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
-    ),
-  ]);
-}
-
 // Sign in with email and password
 export async function signIn({ email, password }: SignInData): Promise<AuthResponse> {
   try {
-    // Firebase Auth call with 15-second timeout to prevent infinite hang
-    const userCredential = await withTimeout(
-      signInWithEmailAndPassword(auth, email, password),
-      15000,
-      'Sign in'
-    );
-    const user = userCredential.user;
+    // Validate that auth is initialised before attempting sign-in
+    if (!auth) {
+      console.error('[Auth] Firebase auth is not initialised');
+      return { user: null, error: 'Sign in is temporarily unavailable. Please restart the app and try again.' };
+    }
 
-    // Update Firestore in the background — do NOT block sign-in on this
-    updateUserDocAfterSignIn(user).catch(() => {
-      // Silently ignore — Firestore update is non-critical
-    });
+    const trimmedEmail = email.trim();
+    console.log('[Auth] signIn start for:', trimmedEmail);
 
-    return { user, error: null };
-  } catch (error) {
+    // First attempt
+    try {
+      const userCredential = await withTimeout(
+        signInWithEmailAndPassword(auth, trimmedEmail, password),
+        15000,
+        'Sign in'
+      );
+      const user = userCredential.user;
+      console.log('[Auth] signIn success, uid:', user.uid);
+
+      // Update Firestore in the background — do NOT block sign-in on this
+      updateUserDocAfterSignIn(user).catch(() => {});
+      return { user, error: null };
+    } catch (firstError: any) {
+      // If it's a credential error, don't retry — fail immediately
+      if (isCredentialError(firstError)) {
+        console.warn('[Auth] signIn credential error (no retry):', firstError.code);
+        throw firstError;
+      }
+
+      // If it's a retryable (transient) error, try ONE more time
+      if (isRetryableError(firstError)) {
+        console.warn('[Auth] signIn transient error, retrying once:', firstError?.code || firstError?.message);
+        // Brief pause before retry
+        await new Promise(r => setTimeout(r, 1000));
+
+        const userCredential = await withTimeout(
+          signInWithEmailAndPassword(auth, trimmedEmail, password),
+          15000,
+          'Sign in (retry)'
+        );
+        const user = userCredential.user;
+        console.log('[Auth] signIn success on retry, uid:', user.uid);
+
+        updateUserDocAfterSignIn(user).catch(() => {});
+        return { user, error: null };
+      }
+
+      // Non-retryable, non-credential error — let outer catch handle it
+      throw firstError;
+    }
+  } catch (error: any) {
+    // Log in both dev and production so device logs can be inspected
+    console.error('[Auth] signIn failed:', error?.code || error?.message || error);
+
     // Handle timeout specifically
     if (error instanceof Error && error.message.includes('timed out')) {
       return { user: null, error: 'Sign in is taking too long. Please check your internet connection and try again.' };
@@ -138,7 +243,8 @@ export async function logOut(): Promise<{ error: string | null }> {
   try {
     await signOut(auth);
     return { error: null };
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[Auth] logOut error:', error?.code || error?.message || error);
     const authError = error as AuthError;
     return { error: getAuthErrorMessage(authError) };
   }
@@ -147,9 +253,10 @@ export async function logOut(): Promise<{ error: string | null }> {
 // Send password reset email
 export async function sendPasswordReset(email: string): Promise<{ error: string | null }> {
   try {
-    await sendPasswordResetEmail(auth, email);
+    await sendPasswordResetEmail(auth, email.trim());
     return { error: null };
-  } catch (error) {
+  } catch (error: any) {
+    console.error('[Auth] sendPasswordReset error:', error?.code || error?.message || error);
     const authError = error as AuthError;
     return { error: getAuthErrorMessage(authError) };
   }
@@ -252,10 +359,19 @@ function getAuthErrorMessage(error: AuthError): string {
     case 'auth/network-request-failed':
       return 'Network error. Please check your connection.';
     case 'auth/configuration-not-found':
-      return 'Firebase Authentication is not properly configured. Please check your Firebase settings.';
+      return 'Sign in is temporarily unavailable. Please try again later or contact support.';
     case 'auth/invalid-credential':
       return 'Invalid email or password. Please try again.';
+    case 'auth/user-disabled':
+      return 'This account has been disabled. Please contact support.';
+    case 'auth/operation-not-allowed':
+      return 'Email/password sign in is not enabled. Please contact support.';
+    case 'auth/internal-error':
+      return 'An internal error occurred. Please try again.';
     default:
-      return error.message || 'An error occurred during authentication.';
+      // Always log for debugging (visible in Xcode / device logs)
+      console.error('[Auth] Unhandled auth error:', error.code, error.message);
+      // NEVER expose raw Firebase error messages to the user
+      return 'Something went wrong. Please check your connection and try again.';
   }
 } 

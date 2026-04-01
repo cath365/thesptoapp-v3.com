@@ -27,7 +27,7 @@ export function useDailyTip() {
       if (saved && saved in LANGUAGE_LABELS) {
         setLanguageState(saved as SupportedLanguage);
       }
-    });
+    }).catch(() => {});
 
     // Fetch health tips from Firestore, fall back to hardcoded data
     const fetchTips = async () => {

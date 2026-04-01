@@ -69,12 +69,16 @@ getInitialLanguage().then((lng) => {
     // eslint-disable-next-line import/no-named-as-default-member
     i18n.changeLanguage(lng);
   }
-});
+}).catch(() => {});
 
 export async function setAppLanguage(code: string): Promise<void> {
-  // eslint-disable-next-line import/no-named-as-default-member
-  await i18n.changeLanguage(code);
-  await AsyncStorage.setItem(LANGUAGE_KEY, code);
+  try {
+    // eslint-disable-next-line import/no-named-as-default-member
+    await i18n.changeLanguage(code);
+    await AsyncStorage.setItem(LANGUAGE_KEY, code);
+  } catch {
+    // Silently ignore — language will fallback to current
+  }
 }
 
 export default i18n;

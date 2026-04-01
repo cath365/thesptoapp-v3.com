@@ -21,79 +21,89 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { useResponsiveLayout } from "@/hooks/useResponsiveLayout";
 
 export const INFORMATION_CATEGORIES = [
   {
     id: "menstrual-health",
     title: "Menstrual Health",
     description: "Understanding your cycle, hygiene tips & more",
-    icon: "flower",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "flower-outline",
+    color: "#D98BA0",
+    iconBg: "#F5D5DF",
+    gradient: ["#F5D5DF", "#D98BA0"],
   },
   {
     id: "hiv-stis",
     title: "HIV & STI's",
     description: "Prevention, testing, treatment & living well",
-    icon: "bug",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "shield-half-outline",
+    color: "#9B6DAE",
+    iconBg: "#F6EFF9",
+    gradient: ["#E6D1F2", "#9B6DAE"],
   },
   {
     id: "maternal-health",
     title: "Maternal Health",
     description: "Pregnancy care, safe delivery & postpartum",
-    icon: "person",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "heart-circle-outline",
+    color: "#C9A4D8",
+    iconBg: "#F2E0EA",
+    gradient: ["#F2E0EA", "#C9A4D8"],
   },
   {
     id: "safe-abortion",
     title: "T.O.P (Safe Abortion)",
     description: "Your rights, safe options & aftercare",
-    icon: "medkit",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "medkit-outline",
+    color: "#7BBFB5",
+    iconBg: "#E5F3F0",
+    gradient: ["#D5ECE8", "#7BBFB5"],
   },
   {
     id: "contraceptives",
     title: "Contraceptives",
     description: "Methods, effectiveness & how to choose",
-    icon: "medical",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "fitness-outline",
+    color: "#A0C4E8",
+    iconBg: "#EBF3FB",
+    gradient: ["#DDE9F5", "#A0C4E8"],
   },
   {
     id: "srhr-laws",
     title: "SRHR Laws",
     description: "Know your rights in South Africa",
-    icon: "document-text",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "book-outline",
+    color: "#E0A88A",
+    iconBg: "#FFF0E8",
+    gradient: ["#FDDECF", "#E0A88A"],
   },
   {
     id: "fact-check",
     title: "Fact Check",
     description: "Myths vs facts about sexual health",
-    icon: "checkmark-circle",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "checkmark-done-circle-outline",
+    color: "#8CC792",
+    iconBg: "#EDF6EE",
+    gradient: ["#D8EDD9", "#8CC792"],
   },
   {
     id: "find-services",
     title: "Find Services",
     description: "Clinics, helplines & support near you",
-    icon: "business",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "location-outline",
+    color: "#9B8EC8",
+    iconBg: "#EDEBF6",
+    gradient: ["#DED9EE", "#9B8EC8"],
   },
   {
     id: "safety",
     title: "Safety",
     description: "GBV resources, safety plans & support",
-    icon: "shield-checkmark",
-    color: SpotColors.primary,
-    gradient: [SpotColors.primaryLight, SpotColors.primary],
+    icon: "shield-checkmark-outline",
+    color: "#E09090",
+    iconBg: "#FBEAEA",
+    gradient: ["#F5D5D5", "#E09090"],
   },
 ];
 
@@ -103,6 +113,7 @@ export default function HomeScreen() {
   const { t } = useLanguage();
   const dailyTip = useDailyTip();
   const { isConnected } = useNetworkStatus();
+  const { isTablet, contentMaxWidth, horizontalPadding } = useResponsiveLayout();
   const [showLangPicker, setShowLangPicker] = React.useState(false);
 
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -113,8 +124,9 @@ export default function HomeScreen() {
       title: t('home.periodTracker'),
       subtitle: t('home.trackCycle'),
       icon: "calendar",
-      color: SpotColors.primary, // Soft rose
-      gradient: [SpotColors.primaryLight, SpotColors.primary],
+      color: SpotColors.rose,
+      iconBg: SpotColors.softPink,
+      gradient: [SpotColors.softPink, SpotColors.blush],
       onPress: () => {
         if (!user) {
           Alert.alert(
@@ -138,8 +150,9 @@ export default function HomeScreen() {
       title: t('home.journal'),
       subtitle: t('home.recordThoughts'),
       icon: "book",
-      color: SpotColors.primary, // Lavender
-      gradient: [SpotColors.primaryLight, SpotColors.primary],
+      color: SpotColors.primary,
+      iconBg: SpotColors.gradientLight,
+      gradient: [SpotColors.gradientLight, SpotColors.gradientMid],
       onPress: () => router.push("/(tabs)/journal"),
     },
     {
@@ -147,8 +160,9 @@ export default function HomeScreen() {
       title: t('home.information'),
       subtitle: t('home.healthInfo'),
       icon: "library",
-      color: SpotColors.primary,
-      gradient: [SpotColors.primaryLight, SpotColors.primary],
+      color: SpotColors.lavender,
+      iconBg: SpotColors.gradientCard,
+      gradient: [SpotColors.gradientCard, SpotColors.gradientLight],
       onPress: () => router.push("/information"),
     },
     {
@@ -156,8 +170,9 @@ export default function HomeScreen() {
       title: t('home.profile'),
       subtitle: t('home.yourAccount'),
       icon: "person",
-      color: SpotColors.primary, // Soft pink
-      gradient: [SpotColors.primaryLight, SpotColors.primary],
+      color: SpotColors.secondary,
+      iconBg: SpotColors.gradientLight,
+      gradient: [SpotColors.gradientLight, SpotColors.primaryLight],
       onPress: () => router.push("/(tabs)/profile"),
     },
   ];
@@ -178,27 +193,22 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Decorative Background Gradient */}
-      <LinearGradient
-        colors={[SpotColors.gradientLight, SpotColors.gradientMid, SpotColors.surface] as any}
-        style={styles.backgroundGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      />
-      
+      {/* Clean Background */}
+      <View style={styles.backgroundGradient} />
+
       <AnnouncementBanner />
 
       {!isConnected && (
         <View style={{
-          backgroundColor: '#FEF3C7',
+          backgroundColor: SpotColors.warningLight,
           paddingVertical: 8,
           paddingHorizontal: 16,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 8,
         }}>
-          <Ionicons name="cloud-offline" size={16} color="#92400E" />
-          <Text style={{ fontSize: 13, color: '#92400E', fontWeight: '500' }}>
+          <Ionicons name="cloud-offline" size={16} color={SpotColors.warningDark} />
+          <Text style={{ fontSize: 13, color: SpotColors.warningDark, fontWeight: '500' }}>
             {t('home.offline')}
           </Text>
         </View>
@@ -207,16 +217,10 @@ export default function HomeScreen() {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, contentMaxWidth ? { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' } : undefined]}
       >
         {/* Header */}
         <View style={styles.header}>
-          <LinearGradient
-            colors={[SpotColors.border, SpotColors.gradientLight, "transparent"] as any}
-            style={styles.headerGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          />
           <View style={styles.headerTop}>
             <View style={styles.userInfo}>
               <Text style={styles.greeting}>{t('home.greeting')}</Text>
@@ -251,13 +255,7 @@ export default function HomeScreen() {
 
         {/* Search Bar */}
         <TouchableOpacity style={styles.searchContainer} onPress={handleSearch}>
-          <LinearGradient
-            colors={[SpotColors.surface, SpotColors.gradientLight] as any}
-            style={styles.searchGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-          />
-          <Ionicons name="search" size={20} color={SpotColors.rose} />
+          <Ionicons name="search" size={20} color={SpotColors.primary} />
           <TextInput
             style={styles.searchInput}
             placeholder={t('home.search')}
@@ -280,25 +278,16 @@ export default function HomeScreen() {
                 onPress={action.onPress}
                 activeOpacity={0.85}
               >
-                <LinearGradient
-                  colors={[SpotColors.surface, SpotColors.gradientLight] as any}
-                  style={styles.quickActionGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                />
                 <View style={styles.quickActionIconWrapper}>
-                  <LinearGradient
-                    colors={action.gradient as any}
-                    style={styles.quickActionIconBg}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                  <View
+                    style={[styles.quickActionIconBg, { backgroundColor: action.iconBg }]}
                   >
                     <Ionicons
                       name={action.icon as any}
                       size={32}
-                      color={SpotColors.surface}
+                      color={action.color}
                     />
-                  </LinearGradient>
+                  </View>
                 </View>
                 <Text style={styles.quickActionTitle}>{action.title}</Text>
                 <Text style={styles.quickActionSubtitle}>
@@ -340,26 +329,16 @@ export default function HomeScreen() {
                     params: { id: cat.id },
                   })
                 }
-                activeOpacity={0.85}
+                activeOpacity={0.9}
               >
-                <LinearGradient
-                  colors={cat.gradient as any}
-                  style={styles.featuredCardGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  {/* Decorative circles */}
-                  <View style={styles.featuredBgCircle1} />
-                  <View style={styles.featuredBgCircle2} />
-                  <View style={styles.featuredBadge}>
-                    <Ionicons name="star" size={12} color={SpotColors.surface} />
-                    <Text style={styles.featuredBadgeText}>Featured</Text>
-                  </View>
-                  <View style={styles.featuredIconContainer}>
-                    <View style={styles.featuredIconCircle}>
-                      <View style={styles.featuredIconInner}>
-                        <Ionicons name={cat.icon as any} size={36} color={SpotColors.surface} />
-                      </View>
+                <View style={styles.featuredCardInner}>
+                  <View style={styles.featuredTopRow}>
+                    <View style={[styles.featuredIconPill, { backgroundColor: cat.iconBg }]}>
+                      <Ionicons name={cat.icon as any} size={22} color={cat.color} />
+                    </View>
+                    <View style={[styles.featuredBadge, { backgroundColor: cat.iconBg }]}>
+                      <Ionicons name="star" size={10} color={cat.color} />
+                      <Text style={[styles.featuredBadgeText, { color: cat.color }]}>Featured</Text>
                     </View>
                   </View>
                   <View style={styles.featuredContent}>
@@ -369,12 +348,14 @@ export default function HomeScreen() {
                         {cat.description}
                       </Text>
                     )}
-                    <View style={styles.featuredArrow}>
-                      <Text style={styles.featuredReadMore}>Read more</Text>
-                      <Ionicons name="arrow-forward-circle" size={20} color={SpotColors.surface} />
+                  </View>
+                  <View style={styles.featuredFooter}>
+                    <Text style={[styles.featuredReadMore, { color: cat.color }]}>Read more</Text>
+                    <View style={[styles.featuredArrowBtn, { backgroundColor: cat.color }]}>
+                      <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
                     </View>
                   </View>
-                </LinearGradient>
+                </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -401,19 +382,15 @@ export default function HomeScreen() {
                 key={cat.id}
                 style={styles.infoCard}
                 onPress={() => handleInformationPress(cat.id)}
-                activeOpacity={0.85}
+                activeOpacity={0.9}
               >
-                <LinearGradient
-                  colors={cat.gradient as any}
-                  style={styles.infoCardGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                >
-                  <View style={styles.infoIconCircle}>
-                    <Ionicons name={cat.icon as any} size={24} color={SpotColors.surface} />
+                <View style={styles.infoCardInner}>
+                  <View style={[styles.infoIconCircle, { backgroundColor: cat.iconBg }]}>
+                    <Ionicons name={cat.icon as any} size={22} color={cat.color} />
                   </View>
                   <Text style={styles.infoTitle} numberOfLines={2}>{cat.title}</Text>
-                </LinearGradient>
+                  <View style={[styles.infoAccent, { backgroundColor: cat.color }]} />
+                </View>
               </TouchableOpacity>
             ))}
           </View>
@@ -519,6 +496,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
+    backgroundColor: SpotColors.background,
   },
   scrollView: {
     flex: 1,
@@ -553,14 +531,14 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 16,
-    color: SpotColors.rose,
+    color: SpotColors.textSecondary,
     fontWeight: "600",
     marginBottom: 4,
   },
   userName: {
     fontSize: 32,
     fontWeight: "700",
-    color: SpotColors.deepPink,
+    color: SpotColors.textPrimary,
     letterSpacing: -0.5,
   },
   avatarContainer: {
@@ -588,7 +566,7 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 16,
-    color: SpotColors.deepPink,
+    color: SpotColors.textSecondary,
     fontWeight: "500",
     lineHeight: 22,
     zIndex: 1,
@@ -597,36 +575,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: SpotColors.surface,
-    borderRadius: 20,
+    borderRadius: 16,
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 14,
     marginHorizontal: 24,
     marginBottom: 32,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 4,
-    position: "relative",
-    overflow: "hidden",
+    shadowColor: SpotColors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
     borderWidth: 1,
     borderColor: SpotColors.border,
-  },
-  searchGradient: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    borderRadius: 20,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: SpotColors.deepPink,
+    color: SpotColors.textPrimary,
     fontWeight: "500",
     marginLeft: 12,
-    zIndex: 1,
   },
   section: {
     marginBottom: 32,
@@ -643,14 +610,14 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     paddingLeft: 0,
     paddingBottom: 8,
-    color: SpotColors.deepPink,
+    color: SpotColors.textPrimary,
     letterSpacing: -0.3,
   },
   sectionSubtitle: {
     fontSize: 14,
     fontWeight: "500",
     paddingLeft: 0,
-    color: SpotColors.rose,
+    color: SpotColors.textSecondary,
     marginBottom: 0,
   },
   viewAllButton: {
@@ -662,7 +629,7 @@ const styles = StyleSheet.create({
   viewAllText: {
     fontSize: 15,
     fontWeight: "600",
-    color: SpotColors.rose,
+    color: SpotColors.primary,
   },
   quickActionsGrid: {
     flexDirection: "row",
@@ -673,28 +640,19 @@ const styles = StyleSheet.create({
   },
   quickActionCard: {
     flexBasis: '46%',
-    borderRadius: 28,
+    borderRadius: 20,
     paddingVertical: 28,
     paddingHorizontal: 8,
     alignItems: "center",
     marginBottom: 16,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
-    elevation: 6,
-    position: "relative",
-    overflow: "hidden",
+    backgroundColor: SpotColors.surface,
+    shadowColor: SpotColors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
     borderWidth: 1,
     borderColor: SpotColors.border,
-  },
-  quickActionGradient: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    borderRadius: 28,
   },
   quickActionIconWrapper: {
     marginBottom: 18,
@@ -704,32 +662,25 @@ const styles = StyleSheet.create({
   quickActionIconBg: {
     width: 64,
     height: 64,
-    borderRadius: 32,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 5,
   },
   quickActionTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: SpotColors.deepPink,
+    color: SpotColors.textPrimary,
     marginTop: 4,
     marginBottom: 6,
     textAlign: "center",
     letterSpacing: -0.2,
-    zIndex: 1,
   },
   quickActionSubtitle: {
     fontSize: 13,
-    color: SpotColors.rose,
+    color: SpotColors.textSecondary,
     fontWeight: "500",
     textAlign: "center",
     letterSpacing: 0.1,
-    zIndex: 1,
   },
   articlesScroll: {
     paddingLeft: 24,
@@ -823,16 +774,15 @@ const styles = StyleSheet.create({
   },
   tipCard: {
     flexDirection: "row",
-    borderRadius: 24,
+    borderRadius: 20,
     padding: 20,
     marginHorizontal: 24,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 4,
-    position: "relative",
-    overflow: "hidden",
+    backgroundColor: SpotColors.surface,
+    shadowColor: SpotColors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
     borderWidth: 1,
     borderColor: SpotColors.border,
   },
@@ -842,7 +792,8 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    borderRadius: 24,
+    borderRadius: 20,
+    pointerEvents: "none",
   },
   tipIcon: {
     width: 52,
@@ -872,12 +823,12 @@ const styles = StyleSheet.create({
   tipTitle: {
     fontSize: 17,
     fontWeight: "700",
-    color: SpotColors.deepPink,
+    color: SpotColors.textPrimary,
     marginBottom: 6,
   },
   tipText: {
     fontSize: 14,
-    color: SpotColors.rose,
+    color: SpotColors.textSecondary,
     lineHeight: 20,
     fontWeight: "500",
   },
@@ -968,167 +919,127 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   featuredCard: {
-    width: 280,
+    width: 260,
     minWidth: 240,
-    height: 220,
-    borderRadius: 28,
-    marginRight: 16,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.25,
-    shadowRadius: 24,
-    elevation: 8,
-    position: "relative",
-    overflow: "hidden",
+    borderRadius: 24,
+    marginRight: 0,
+    backgroundColor: SpotColors.surface,
+    shadowColor: SpotColors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: SpotColors.border,
   },
-  featuredCardGradient: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    borderRadius: 28,
+  featuredCardInner: {
     padding: 20,
+    flex: 1,
     justifyContent: "space-between",
   },
-  featuredBgCircle1: {
-    position: "absolute",
-    right: -40,
-    top: -40,
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: "rgba(255,255,255,0.1)",
+  featuredTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
   },
-  featuredBgCircle2: {
-    position: "absolute",
-    left: -20,
-    bottom: -20,
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.08)",
+  featuredIconPill: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
   },
   featuredBadge: {
     flexDirection: "row",
     alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(255,255,255,0.25)",
     paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
     gap: 4,
   },
   featuredBadgeText: {
     fontSize: 11,
     fontWeight: "700",
-    color: SpotColors.surface,
-    letterSpacing: 0.5,
-    textShadowColor: "rgba(0,0,0,0.2)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  featuredIconContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  featuredIconCircle: {
-    width: 76,
-    height: 76,
-    borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
-  },
-  featuredIconInner: {
-    width: 64,
-    height: 64,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    alignItems: "center",
-    justifyContent: "center",
+    letterSpacing: 0.3,
   },
   featuredContent: {
-    marginTop: 8,
+    marginBottom: 16,
   },
   featuredTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: SpotColors.surface,
-    textShadowColor: "rgba(0,0,0,0.15)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-    marginBottom: 4,
-    lineHeight: 26,
+    fontSize: 19,
+    fontWeight: "800",
+    color: SpotColors.textPrimary,
+    marginBottom: 6,
     letterSpacing: -0.3,
   },
   featuredDescription: {
     fontSize: 13,
     fontWeight: "500",
-    color: "rgba(255,255,255,0.85)",
-    lineHeight: 18,
-    marginBottom: 8,
+    color: SpotColors.textSecondary,
+    lineHeight: 19,
   },
-  featuredArrow: {
+  featuredFooter: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: 6,
   },
   featuredReadMore: {
     fontSize: 14,
-    fontWeight: "600",
-    color: SpotColors.surface,
-    textShadowColor: "rgba(0,0,0,0.2)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontWeight: "700",
+  },
+  featuredArrowBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
   infoGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     paddingHorizontal: 24,
     justifyContent: "space-between",
-    rowGap: 12,
+    rowGap: 14,
   },
   infoCard: {
     flexBasis: "30%",
-    aspectRatio: 0.85,
     borderRadius: 20,
-    shadowColor: SpotColors.rose,
+    backgroundColor: SpotColors.surface,
+    shadowColor: SpotColors.shadow,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.06,
     shadowRadius: 12,
-    elevation: 4,
-    overflow: "hidden",
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: SpotColors.border,
   },
-  infoCardGradient: {
-    flex: 1,
-    borderRadius: 20,
+  infoCardInner: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 10,
+    paddingVertical: 18,
+    paddingHorizontal: 8,
   },
   infoIconCircle: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.25)",
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
   },
   infoTitle: {
     fontSize: 12,
     fontWeight: "700",
-    color: SpotColors.surface,
+    color: SpotColors.textPrimary,
     textAlign: "center",
-    textShadowColor: "rgba(0,0,0,0.15)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
     lineHeight: 16,
+    marginBottom: 8,
+  },
+  infoAccent: {
+    width: 24,
+    height: 3,
+    borderRadius: 2,
+    opacity: 0.5,
   },
 });

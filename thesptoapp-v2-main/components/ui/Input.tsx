@@ -1,5 +1,5 @@
 import { SpotColors } from '@/constants/Colors';
-import React from 'react';
+import React, { useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -17,24 +17,36 @@ interface InputProps extends TextInputProps {
 }
 
 export function Input({ label, error, containerStyle, renderRight, ...props }: InputProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <View style={[styles.container, containerStyle]}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.label} maxFontSizeMultiplier={1.3}>{label}</Text>
       <View style={{ position: 'relative' }}>
         <TextInput
           style={[
             styles.input,
+            isFocused && styles.inputFocused,
             error ? styles.inputError : null,
             renderRight ? { paddingRight: 44 } : null,
           ]}
           placeholderTextColor={SpotColors.textPrimary + '60'}
+          onFocus={(e) => {
+            setIsFocused(true);
+            props.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            props.onBlur?.(e);
+          }}
+          maxFontSizeMultiplier={1.3}
           {...props}
         />
         {renderRight && (
           <View style={styles.rightIconContainer}>{renderRight()}</View>
         )}
       </View>
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text style={styles.errorText} maxFontSizeMultiplier={1.3}>{error}</Text>}
     </View>
   );
 }
@@ -52,19 +64,27 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   input: {
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: SpotColors.border,
-    borderRadius: 14,
+    borderRadius: 10,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 12,
     fontSize: 16,
     color: SpotColors.textPrimary,
-    backgroundColor: SpotColors.background,
-    shadowColor: SpotColors.border,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    backgroundColor: '#FFFFFF',
+    shadowColor: SpotColors.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 1,
+  },
+  inputFocused: {
+    borderColor: SpotColors.primary,
+    borderWidth: 1.5,
+    shadowColor: SpotColors.primary,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 2,
   },
   inputError: {
     borderColor: SpotColors.error,

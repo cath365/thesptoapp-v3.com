@@ -1,63 +1,230 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useAnnouncement, AnnouncementType } from '@/hooks/useAnnouncement';
+import { SpotColors } from '@/constants/Colors';
 
-const TYPE_STYLES: Record<AnnouncementType, { bg: string; text: string; border: string; emoji: string }> = {
-  info:    { bg: '#F5EEF8', text: '#9B6DAE', border: '#C69FD5', emoji: '📢' },
-  warning: { bg: '#FEF3C7', text: '#D97706', border: '#FCD34D', emoji: '⚠️' },
-  success: { bg: '#D1FAE5', text: '#059669', border: '#6EE7B7', emoji: '✅' },
-  urgent:  { bg: '#FFF0F3', text: '#E8879C', border: '#F2C4CE', emoji: '🚨' },
+const TYPE_CONFIG: Record<AnnouncementType, {
+  gradient: [string, string];
+  icon: keyof typeof Ionicons.glyphMap;
+  iconColor: string;
+  iconBg: string;
+  textColor: string;
+  accentColor: string;
+}> = {
+  info: {
+    gradient: [SpotColors.gradientCard, SpotColors.gradientLight],
+    icon: 'megaphone-outline',
+    iconColor: SpotColors.primary,
+    iconBg: SpotColors.primaryLight,
+    textColor: SpotColors.textPrimary,
+    accentColor: SpotColors.primary,
+  },
+  warning: {
+    gradient: ['#FFFDF5', SpotColors.warningLight],
+    icon: 'alert-circle-outline',
+    iconColor: SpotColors.warningDark,
+    iconBg: SpotColors.warningLight,
+    textColor: SpotColors.textPrimary,
+    accentColor: SpotColors.warning,
+  },
+  success: {
+    gradient: ['#F8FFF8', SpotColors.successLight],
+    icon: 'checkmark-circle-outline',
+    iconColor: SpotColors.success,
+    iconBg: SpotColors.successLight,
+    textColor: SpotColors.textPrimary,
+    accentColor: SpotColors.success,
+  },
+  urgent: {
+    gradient: ['#FFFBFC', SpotColors.softPink],
+    icon: 'notifications-outline',
+    iconColor: SpotColors.rose,
+    iconBg: SpotColors.blush,
+    textColor: SpotColors.textPrimary,
+    accentColor: SpotColors.rose,
+  },
 };
 
 export default function AnnouncementBanner() {
   const { announcement, dismiss } = useAnnouncement();
+  const slideAnim = useRef(new Animated.Value(-100)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (announcement) {
+      // Slide in + fade in
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          tension: 60,
+          friction: 12,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        // Start continuous pulse loop
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(pulseAnim, {
+              toValue: 0.4,
+              duration: 2000,
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseAnim, {
+              toValue: 1,
+              duration: 2000,
+              useNativeDriver: true,
+            }),
+          ])
+        ).start();
+      });
+    }
+    return () => {
+      pulseAnim.stopAnimation();
+    };
+  }, [announcement, slideAnim, fadeAnim, pulseAnim]);
+
+  const handleDismiss = () => {
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: -100,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => dismiss());
+  };
 
   if (!announcement) return null;
 
-  const style = TYPE_STYLES[announcement.type] ?? TYPE_STYLES.info;
+  const config = TYPE_CONFIG[announcement.type] ?? TYPE_CONFIG.info;
 
   return (
-    <View style={[styles.container, { backgroundColor: style.bg, borderColor: style.border }]}>
-      <Text style={styles.emoji}>{style.emoji}</Text>
-      <Text style={[styles.message, { color: style.text }]} numberOfLines={3}>
-        {announcement.message}
-      </Text>
-      <TouchableOpacity onPress={dismiss} style={styles.closeBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-        <Text style={[styles.closeText, { color: style.text }]}>✕</Text>
-      </TouchableOpacity>
-    </View>
+    <Animated.View
+      style={[
+        styles.wrapper,
+        {
+          transform: [{ translateY: slideAnim }],
+          opacity: Animated.multiply(fadeAnim, pulseAnim),
+        },
+      ]}
+    >
+      <View style={styles.container}>
+        <LinearGradient
+          colors={config.gradient as any}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.gradientBg}
+        />
+        {/* Accent stripe */}
+        <View style={[styles.accentStripe, { backgroundColor: config.accentColor }]} />
+
+        {/* Icon */}
+        <View style={[styles.iconContainer, { backgroundColor: config.iconBg }]}>
+          <Ionicons name={config.icon} size={20} color={config.iconColor} />
+        </View>
+
+        {/* Content */}
+        <View style={styles.content}>
+          <Text style={[styles.message, { color: config.textColor }]} numberOfLines={3}>
+            {announcement.message}
+          </Text>
+        </View>
+
+        {/* Dismiss */}
+        <TouchableOpacity
+          onPress={handleDismiss}
+          style={styles.closeBtn}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          activeOpacity={0.6}
+        >
+          <View style={styles.closeBtnInner}>
+            <Ionicons name="close" size={14} color={SpotColors.textSecondary} />
+          </View>
+        </TouchableOpacity>
+      </View>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    gap: 10,
+    borderRadius: 16,
+    overflow: 'hidden',
+    backgroundColor: SpotColors.surface,
+    ...Platform.select({
+      ios: {
+        shadowColor: SpotColors.shadow,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
-  emoji: {
-    fontSize: 18,
-    flexShrink: 0,
+  gradientBg: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  accentStripe: {
+    width: 4,
+    alignSelf: 'stretch',
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+  },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 12,
+    marginVertical: 12,
+  },
+  content: {
+    flex: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
   },
   message: {
-    flex: 1,
-    fontSize: 13,
+    fontSize: 13.5,
     fontWeight: '600',
-    lineHeight: 18,
+    lineHeight: 19,
+    letterSpacing: 0.1,
   },
   closeBtn: {
-    flexShrink: 0,
-    padding: 2,
+    paddingRight: 14,
+    paddingVertical: 14,
   },
-  closeText: {
-    fontSize: 13,
-    fontWeight: '700',
+  closeBtnInner: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

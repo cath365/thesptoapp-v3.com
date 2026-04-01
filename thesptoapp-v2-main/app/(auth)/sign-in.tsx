@@ -3,7 +3,8 @@ import { Input } from '@/components/ui/Input';
 import { SpotColors } from '@/constants/Colors';
 import { useAppState } from '@/hooks/useAppState';
 import { useLanguage } from '@/hooks/useLanguage';
-import { sendPasswordReset, signIn } from '@/lib/auth';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
+import { checkConnectivity, sendPasswordReset, signIn } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -29,6 +30,7 @@ export default function SignInScreen() {
   const { setGuestMode } = useAppState();
   const { t } = useLanguage();
   const { height: screenHeight } = useWindowDimensions();
+  const { isTablet, formMaxWidth, horizontalPadding, heroHeight } = useResponsiveLayout();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -80,6 +82,16 @@ export default function SignInScreen() {
     console.log('[SignIn] Login attempt for:', email.trim());
 
     try {
+      // Pre-flight connectivity check — surface a clear message before Firebase times out
+      const online = await checkConnectivity();
+      if (!online) {
+        Alert.alert(
+          'No Internet Connection',
+          'Please check your network connection and try again.'
+        );
+        return;
+      }
+
       const result = await signIn({ email: email.trim(), password });
 
       if (result.error) {
@@ -91,7 +103,12 @@ export default function SignInScreen() {
         // when Firebase auth state changes to authenticated.
       }
     } catch (error: any) {
-      console.error('[SignIn] Uncaught login error:', error?.message || error);
+      console.error('[SignIn] Uncaught login error:', {
+        message: error?.message,
+        code: error?.code,
+        platform: Platform.OS,
+        isPad: Platform.OS === 'ios' && (Platform as any).isPad,
+      });
       Alert.alert(
         'Sign In Failed',
         'An unexpected error occurred. Please check your connection and try again.'
@@ -144,8 +161,8 @@ export default function SignInScreen() {
     <View style={styles.container}>
       {/* Top gradient hero section */}
       <LinearGradient
-        colors={[SpotColors.primary, SpotColors.lavender, SpotColors.blush] as any}
-        style={[styles.heroGradient, { height: Math.min(screenHeight * 0.35, 300) }]}
+        colors={[SpotColors.primary, SpotColors.lavender, SpotColors.primaryLight]}
+        style={[styles.heroGradient, { height: heroHeight }]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
@@ -155,7 +172,7 @@ export default function SignInScreen() {
         <View style={styles.heroBubble3} />
 
         <SafeAreaView edges={['top']} style={styles.heroContent}>
-          <TouchableOpacity onPress={handleContinueAsGuest} style={styles.skipButton}>
+          <TouchableOpacity onPress={handleContinueAsGuest} style={styles.skipButton} accessibilityRole="button" accessibilityLabel="Skip sign in and continue as guest">
             <Text style={styles.skipText}>{t('auth.skip')}</Text>
             <Ionicons name="arrow-forward" size={16} color={SpotColors.textOnPrimary} />
           </TouchableOpacity>
@@ -179,11 +196,11 @@ export default function SignInScreen() {
         style={styles.formSection}
       >
         <ScrollView 
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingHorizontal: horizontalPadding }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.formCard}>
+          <View style={[styles.formCard, formMaxWidth ? { maxWidth: formMaxWidth, alignSelf: 'center', width: '100%' } : undefined]}>
             <Text style={styles.welcomeTitle}>{t('auth.welcomeBack')}</Text>
             <Text style={styles.welcomeSubtitle}>{t('auth.signInSubtitle')}</Text>
 
@@ -221,7 +238,7 @@ export default function SignInScreen() {
                 )}
               />
 
-              <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPassword}>
+              <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPassword} accessibilityRole="button" accessibilityLabel="Forgot password">
                 <Text style={styles.forgotPasswordText}>{t('auth.forgotPassword')}</Text>
               </TouchableOpacity>
             </View>
@@ -240,14 +257,14 @@ export default function SignInScreen() {
               <View style={styles.dividerLine} />
             </View>
 
-            <TouchableOpacity onPress={handleContinueAsGuest} style={styles.guestButton}>
+            <TouchableOpacity onPress={handleContinueAsGuest} style={styles.guestButton} accessibilityRole="button" accessibilityLabel="Continue as guest">
               <Ionicons name="person-outline" size={18} color={SpotColors.primary} />
               <Text style={styles.guestButtonText}>{t('auth.continueGuest')}</Text>
             </TouchableOpacity>
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>{t('auth.noAccount')} </Text>
-              <TouchableOpacity onPress={handleGoToSignUp}>
+              <TouchableOpacity onPress={handleGoToSignUp} accessibilityRole="link" accessibilityLabel="Go to sign up">
                 <Text style={styles.signUpLink}>{t('auth.signUp')}</Text>
               </TouchableOpacity>
             </View>
@@ -270,7 +287,7 @@ export default function SignInScreen() {
           <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
             <View style={styles.modalIconRow}>
               <LinearGradient
-                colors={[SpotColors.primary, SpotColors.primaryLight] as any}
+                colors={[SpotColors.primary, SpotColors.primaryLight]}
                 style={styles.modalIconCircle}
               >
                 <Ionicons name="lock-open-outline" size={28} color={SpotColors.surface} />
@@ -316,8 +333,8 @@ const styles = StyleSheet.create({
   },
   heroGradient: {
     width: '100%',
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
     overflow: 'hidden',
   },
   heroBubble1: {
@@ -416,15 +433,15 @@ const styles = StyleSheet.create({
   },
   formCard: {
     backgroundColor: SpotColors.surface,
-    borderRadius: 28,
+    borderRadius: 24,
     padding: 28,
-    borderTopWidth: 3,
-    borderTopColor: SpotColors.lavender,
-    shadowColor: SpotColors.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.10,
-    shadowRadius: 28,
-    elevation: 6,
+    borderTopWidth: 2,
+    borderTopColor: SpotColors.primaryLight,
+    shadowColor: SpotColors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 4,
   },
   welcomeTitle: {
     fontSize: 24,
@@ -451,7 +468,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   signInButton: {
-    borderRadius: 16,
+    borderRadius: 12,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -474,10 +491,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 1.5,
+    borderRadius: 12,
+    borderWidth: 1,
     borderColor: SpotColors.border,
-    backgroundColor: SpotColors.gradientLight,
+    backgroundColor: 'rgba(198,159,213,0.08)',
     gap: 8,
   },
   guestButtonText: {
@@ -548,18 +565,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   resetEmailInput: {
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: SpotColors.border,
-    borderRadius: 14,
+    borderRadius: 10,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 12,
     fontSize: 16,
     color: SpotColors.textPrimary,
-    backgroundColor: SpotColors.background,
+    backgroundColor: '#FFFFFF',
     marginBottom: 16,
   },
   resetButton: {
-    borderRadius: 16,
+    borderRadius: 12,
     marginBottom: 12,
   },
   cancelButton: {

@@ -5,8 +5,9 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
+  Animated,
   FlatList,
   Image,
   StyleSheet,
@@ -15,6 +16,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
 
 type Tab = 'bookmarks' | 'history';
 
@@ -24,6 +26,7 @@ export default function BookmarksScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('bookmarks');
   const { bookmarks, loading: bookmarksLoading } = useBookmarks();
   const { history, loading: historyLoading } = useReadingHistory();
+  const { contentMaxWidth } = useResponsiveLayout();
 
   const navigateToArticle = (articleId: string) => {
     router.push(`/information/article/${articleId}` as any);
@@ -77,34 +80,40 @@ export default function BookmarksScreen() {
         <View style={styles.progressRow}>
           <View style={styles.progressBar}>
             <View
-              style={[styles.progressFill, { width: `${Math.round(item.progress * 100)}%` }]}
+              style={[styles.progressFill, { width: `${Math.round((item.progress ?? 0) * 100)}%` }]}
             />
           </View>
-          <Text style={styles.progressText}>{Math.round(item.progress * 100)}%</Text>
+          <Text style={styles.progressText}>{Math.round((item.progress ?? 0) * 100)}%</Text>
         </View>
         <Text style={styles.cardMeta}>
-          {new Date(item.readAt).toLocaleDateString()} · {Math.round(item.readDurationSeconds / 60)}min read
+          {new Date(item.readAt).toLocaleDateString()} · {Math.round((item.readDurationSeconds ?? 0) / 60)}min read
         </Text>
       </View>
     </TouchableOpacity>
   );
 
-  const renderEmpty = (message: string, icon: string) => (
-    <View style={styles.emptyContainer}>
-      <LinearGradient
-        colors={[SpotColors.primaryLight, SpotColors.lavender] as any}
-        style={styles.emptyIconCircle}
-      >
-        <Ionicons name={icon as any} size={32} color={SpotColors.surface} />
-      </LinearGradient>
-      <Text style={styles.emptyTitle}>{message}</Text>
-      <Text style={styles.emptySubtitle}>
-        {activeTab === 'bookmarks'
-          ? t('library.bookmarkHint')
-          : t('library.historyHint')}
-      </Text>
-    </View>
-  );
+  const renderEmpty = (message: string, icon: string) => {
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    useEffect(() => {
+      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+    }, [fadeAnim]);
+    return (
+      <Animated.View style={[styles.emptyContainer, { opacity: fadeAnim }]}>
+        <LinearGradient
+          colors={[SpotColors.primaryLight, SpotColors.lavender] as any}
+          style={styles.emptyIconCircle}
+        >
+          <Ionicons name={icon as any} size={40} color={SpotColors.surface} />
+        </LinearGradient>
+        <Text style={styles.emptyTitle}>{message}</Text>
+        <Text style={styles.emptySubtitle}>
+          {activeTab === 'bookmarks'
+            ? t('library.bookmarkHint')
+            : t('library.historyHint')}
+        </Text>
+      </Animated.View>
+    );
+  };
 
   const loading = activeTab === 'bookmarks' ? bookmarksLoading : historyLoading;
 
@@ -116,10 +125,12 @@ export default function BookmarksScreen() {
       </View>
 
       {/* Tab Switcher */}
-      <View style={styles.tabBar}>
+      <View style={[styles.tabBar, contentMaxWidth ? { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' } : undefined]}>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'bookmarks' && styles.tabActive]}
           onPress={() => setActiveTab('bookmarks')}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'bookmarks' }}
         >
           <Ionicons
             name="bookmark"
@@ -133,6 +144,8 @@ export default function BookmarksScreen() {
         <TouchableOpacity
           style={[styles.tab, activeTab === 'history' && styles.tabActive]}
           onPress={() => setActiveTab('history')}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'history' }}
         >
           <Ionicons
             name="time"
@@ -297,9 +310,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   emptyIconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,

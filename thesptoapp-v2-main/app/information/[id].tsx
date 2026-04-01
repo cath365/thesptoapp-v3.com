@@ -25,6 +25,7 @@ const CATEGORY_ALIASES: Record<string, string> = {
 };
 
 function matchesCategory(articleCategory: string, categoryId: string): boolean {
+  if (!articleCategory || !categoryId) return false;
   const artCat = articleCategory.toLowerCase();
   const catId = categoryId.toLowerCase();
   if (artCat === catId) return true;

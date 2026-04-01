@@ -3,11 +3,12 @@ import { Input } from '@/components/ui/Input';
 import { SpotColors } from '@/constants/Colors';
 import { useAppState } from '@/hooks/useAppState';
 import { useLanguage } from '@/hooks/useLanguage';
-import { signUp } from '@/lib/auth';
+import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
+import { checkConnectivity, signUp } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Alert,
   Image,
@@ -27,6 +28,7 @@ export default function SignUpScreen() {
   const { setGuestMode } = useAppState();
   const { t } = useLanguage();
   const { height: screenHeight } = useWindowDimensions();
+  const { isTablet, formMaxWidth, horizontalPadding, heroHeight } = useResponsiveLayout();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,6 +42,9 @@ export default function SignUpScreen() {
   }>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Ref-based guard prevents double-fire even if state update is batched
+  const signUpInFlight = useRef(false);
 
   const validateForm = () => {
     const newErrors: {
@@ -77,19 +82,51 @@ export default function SignUpScreen() {
 
   const handleSignUp = async () => {
     if (!validateForm()) return;
+    if (isLoading || signUpInFlight.current) return;
     
+    signUpInFlight.current = true;
     setIsLoading(true);
-    const result = await signUp({
-      email,
-      password,
-      displayName: displayName.trim(),
-    });
-    
-    setIsLoading(false);
-    if (result.error) {
-      Alert.alert('Sign Up Failed', result.error);
+    console.log('[SignUp] Attempt for:', email.trim());
+
+    try {
+      // Pre-flight connectivity check
+      const online = await checkConnectivity();
+      if (!online) {
+        Alert.alert(
+          'No Internet Connection',
+          'Please check your network connection and try again.'
+        );
+        return;
+      }
+
+      const result = await signUp({
+        email: email.trim(),
+        password,
+        displayName: displayName.trim(),
+      });
+      
+      if (result.error) {
+        console.warn('[SignUp] Failed:', result.error);
+        Alert.alert('Sign Up Failed', result.error);
+      } else {
+        console.log('[SignUp] Success, uid:', result.user?.uid);
+      }
+      // On success, Firebase auth state change will automatically navigate to home
+    } catch (error: any) {
+      console.error('[SignUp] Uncaught error:', error?.message || error, {
+        platform: Platform.OS,
+        isPad: (Platform as any).isPad,
+        version: Platform.Version,
+        stack: error?.stack?.slice?.(0, 300),
+      });
+      Alert.alert(
+        'Sign Up Failed',
+        'An unexpected error occurred. Please check your connection and try again.'
+      );
+    } finally {
+      setIsLoading(false);
+      signUpInFlight.current = false;
     }
-    // On success, Firebase auth state change will automatically navigate to home
   };
 
   const handleGoToSignIn = () => {
@@ -97,15 +134,19 @@ export default function SignUpScreen() {
   };
 
   const handleContinueAsGuest = async () => {
-    await setGuestMode(true);
+    try {
+      await setGuestMode(true);
+    } catch (error: any) {
+      console.error('[SignUp] Guest mode error:', error?.message || error);
+    }
   };
 
   return (
     <View style={styles.container}>
       {/* Top gradient hero section */}
       <LinearGradient
-        colors={[SpotColors.secondary, SpotColors.rose, SpotColors.blush] as any}
-        style={[styles.heroGradient, { height: Math.min(screenHeight * 0.30, 260) }]}
+        colors={[SpotColors.primary, SpotColors.lavender, SpotColors.primaryLight] as any}
+        style={[styles.heroGradient, { height: heroHeight }]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
@@ -116,10 +157,10 @@ export default function SignUpScreen() {
 
         <SafeAreaView edges={['top']} style={styles.heroContent}>
           <View style={styles.heroTopRow}>
-            <TouchableOpacity onPress={handleGoToSignIn} style={styles.backButton}>
+            <TouchableOpacity onPress={handleGoToSignIn} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Go back to sign in">
               <Ionicons name="arrow-back" size={18} color={SpotColors.textOnPrimary} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleContinueAsGuest} style={styles.skipButton}>
+            <TouchableOpacity onPress={handleContinueAsGuest} style={styles.skipButton} accessibilityRole="button" accessibilityLabel="Skip sign up and continue as guest">
               <Text style={styles.skipText}>{t('auth.skip')}</Text>
               <Ionicons name="arrow-forward" size={16} color={SpotColors.textOnPrimary} />
             </TouchableOpacity>
@@ -144,11 +185,11 @@ export default function SignUpScreen() {
         style={styles.formSection}
       >
         <ScrollView 
-          contentContainerStyle={styles.scrollContent}
+          contentContainerStyle={[styles.scrollContent, { paddingHorizontal: horizontalPadding }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.formCard}>
+          <View style={[styles.formCard, formMaxWidth ? { maxWidth: formMaxWidth, alignSelf: 'center', width: '100%' } : undefined]}>
             <Text style={styles.welcomeTitle}>{t('auth.createAccount')}</Text>
             <Text style={styles.welcomeSubtitle}>{t('auth.createSubtitle')}</Text>
 
@@ -232,14 +273,14 @@ export default function SignUpScreen() {
               <View style={styles.dividerLine} />
             </View>
 
-            <TouchableOpacity onPress={handleContinueAsGuest} style={styles.guestButton}>
+            <TouchableOpacity onPress={handleContinueAsGuest} style={styles.guestButton} accessibilityRole="button" accessibilityLabel="Continue as guest">
               <Ionicons name="person-outline" size={18} color={SpotColors.secondary} />
               <Text style={styles.guestButtonText}>{t('auth.continueGuest')}</Text>
             </TouchableOpacity>
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>{t('auth.hasAccount')} </Text>
-              <TouchableOpacity onPress={handleGoToSignIn}>
+              <TouchableOpacity onPress={handleGoToSignIn} accessibilityRole="link" accessibilityLabel="Go to sign in">
                 <Text style={styles.signInLink}>{t('auth.signIn')}</Text>
               </TouchableOpacity>
             </View>
@@ -257,8 +298,8 @@ const styles = StyleSheet.create({
   },
   heroGradient: {
     width: '100%',
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
     overflow: 'hidden',
   },
   heroBubble1: {
@@ -369,15 +410,15 @@ const styles = StyleSheet.create({
   },
   formCard: {
     backgroundColor: SpotColors.surface,
-    borderRadius: 28,
+    borderRadius: 24,
     padding: 28,
-    borderTopWidth: 3,
-    borderTopColor: SpotColors.rose,
-    shadowColor: SpotColors.secondary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.10,
-    shadowRadius: 28,
-    elevation: 6,
+    borderTopWidth: 2,
+    borderTopColor: SpotColors.primaryLight,
+    shadowColor: SpotColors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 4,
   },
   welcomeTitle: {
     fontSize: 24,
@@ -394,7 +435,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   signUpButton: {
-    borderRadius: 16,
+    borderRadius: 12,
   },
   dividerRow: {
     flexDirection: 'row',
@@ -417,10 +458,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 1.5,
+    borderRadius: 12,
+    borderWidth: 1,
     borderColor: SpotColors.border,
-    backgroundColor: SpotColors.gradientLight,
+    backgroundColor: 'rgba(198,159,213,0.08)',
     gap: 8,
   },
   guestButtonText: {

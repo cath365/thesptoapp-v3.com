@@ -96,15 +96,19 @@ export function useBookmarks() {
 
       if (user) {
         // Firestore path
-        const docRef = doc(db, `users/${user.uid}/bookmarks`, articleId);
-        if (alreadySaved) {
-          await deleteDoc(docRef);
-        } else {
-          await setDoc(docRef, {
-            articleId,
-            ...meta,
-            savedAt: serverTimestamp(),
-          });
+        try {
+          const docRef = doc(db, `users/${user.uid}/bookmarks`, articleId);
+          if (alreadySaved) {
+            await deleteDoc(docRef);
+          } else {
+            await setDoc(docRef, {
+              articleId,
+              ...meta,
+              savedAt: serverTimestamp(),
+            });
+          }
+        } catch {
+          // Swallow Firestore errors — caller can handle via UI
         }
       } else {
         // AsyncStorage path
