@@ -11,8 +11,8 @@
 
 export const SpotColors = {
   // ─── Brand ────────────────────────────────
-  primary: "#C9A4D8",
-  background: "#FFFAE8",
+  primary: "#C69FD5",
+  background: "#FDFDC9",
 
   // ─── Surfaces ─────────────────────────────
   surface: "#FFFFFF",
