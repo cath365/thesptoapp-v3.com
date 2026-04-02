@@ -292,8 +292,8 @@ export async function getContentAnalytics(): Promise<ContentAnalytics> {
   const drafts = articles.length - published;
 
   const statusDistribution = [
-    { name: "Published", value: published, color: "#10b981" },
-    { name: "Drafts", value: drafts, color: "#f59e0b" },
+    { name: "Published", value: published, color: "#4CAF50" },
+    { name: "Drafts", value: drafts, color: "#FF9800" },
   ];
 
   return { articlesOverTime, articlesByCategory, statusDistribution };

@@ -7,9 +7,9 @@ import Spinner from "@/components/ui/Spinner";
 
 const TYPES = [
   { value: "info", label: "Info", color: "#9B6DAE", bg: "#F5EEF8" },
-  { value: "warning", label: "Warning", color: "#D97706", bg: "#FEF3C7" },
-  { value: "success", label: "Success", color: "#059669", bg: "#D1FAE5" },
-  { value: "urgent", label: "Urgent", color: "#E8879C", bg: "#FFF0F3" },
+  { value: "warning", label: "Warning", color: "#E65100", bg: "#FFF3E0" },
+  { value: "success", label: "Success", color: "#4CAF50", bg: "#E8F5E9" },
+  { value: "urgent", label: "Urgent", color: "#E8879C", bg: "#F0D0D9" },
 ];
 
 export default function AnnouncementPage() {

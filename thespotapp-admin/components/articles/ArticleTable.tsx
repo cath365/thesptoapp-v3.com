@@ -45,9 +45,9 @@ const categoryLabel = (cat: ArticleCategory) =>
   ARTICLE_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
 
 function getStatusInfo(article: Article): { label: string; bg: string; color: string } {
-  if (article.status === "scheduled") return { label: "Scheduled", bg: "#EDE9FE", color: "#7C3AED" };
-  if (article.isPublished) return { label: "Published", bg: "#D1FAE5", color: "#059669" };
-  return { label: "Draft", bg: "#FEF3C7", color: "#D97706" };
+  if (article.status === "scheduled") return { label: "Scheduled", bg: "#F5EEF8", color: "#9B6DAE" };
+  if (article.isPublished) return { label: "Published", bg: "#E8F5E9", color: "#4CAF50" };
+  return { label: "Draft", bg: "#FFF3E0", color: "#FF9800" };
 }
 
 function formatArticleDate(dateStr: string | undefined): string {
@@ -252,9 +252,9 @@ export default function ArticleTable() {
               onClick={() => handleBulkPublish(true)}
               disabled={bulkLoading}
               className="px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ backgroundColor: "#D1FAE5", color: "#059669", opacity: bulkLoading ? 0.6 : 1 }}
-              onMouseEnter={(e) => { if (!bulkLoading) e.currentTarget.style.backgroundColor = "#A7F3D0"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#D1FAE5"; }}
+              style={{ backgroundColor: "#E8F5E9", color: "#4CAF50", opacity: bulkLoading ? 0.6 : 1 }}
+              onMouseEnter={(e) => { if (!bulkLoading) e.currentTarget.style.backgroundColor = "#C8E6C9"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#E8F5E9"; }}
             >
               Publish All
             </button>
@@ -262,9 +262,9 @@ export default function ArticleTable() {
               onClick={() => handleBulkPublish(false)}
               disabled={bulkLoading}
               className="px-3 py-1.5 rounded-lg text-xs font-medium"
-              style={{ backgroundColor: "#FEF3C7", color: "#D97706", opacity: bulkLoading ? 0.6 : 1 }}
-              onMouseEnter={(e) => { if (!bulkLoading) e.currentTarget.style.backgroundColor = "#FDE68A"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#FEF3C7"; }}
+              style={{ backgroundColor: "#FFF3E0", color: "#FF9800", opacity: bulkLoading ? 0.6 : 1 }}
+              onMouseEnter={(e) => { if (!bulkLoading) e.currentTarget.style.backgroundColor = "#FFE0B2"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#FFF3E0"; }}
             >
               Unpublish All
             </button>
@@ -353,8 +353,8 @@ export default function ArticleTable() {
                     onClick={() => handleTogglePublish(article)}
                     className="flex-1 px-3 py-2 rounded-xl text-xs font-medium"
                     style={article.isPublished
-                      ? { backgroundColor: "#FEF3C7", color: "#D97706" }
-                      : { backgroundColor: "#D1FAE5", color: "#059669" }}
+                      ? { backgroundColor: "#FFF3E0", color: "#FF9800" }
+                      : { backgroundColor: "#E8F5E9", color: "#4CAF50" }}
                   >
                     {article.isPublished ? "Unpublish" : "Publish"}
                   </button>
@@ -474,7 +474,7 @@ export default function ArticleTable() {
                     <button
                       onClick={() => handleTogglePublish(article)}
                       className="px-2.5 py-1.5 rounded-lg text-xs font-medium"
-                      style={article.isPublished ? { backgroundColor: "#FEF3C7", color: "#D97706" } : { backgroundColor: "#D1FAE5", color: "#059669" }}
+                      style={article.isPublished ? { backgroundColor: "#FFF3E0", color: "#FF9800" } : { backgroundColor: "#E8F5E9", color: "#4CAF50" }}
                     >
                       {article.isPublished ? "Unpublish" : "Publish"}
                     </button>

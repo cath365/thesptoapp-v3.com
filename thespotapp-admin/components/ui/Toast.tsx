@@ -19,13 +19,13 @@ export default function ToastProvider() {
         },
         success: {
           iconTheme: {
-            primary: "#7c3aed",
+            primary: "#4CAF50",
             secondary: "#fff",
           },
         },
         error: {
           iconTheme: {
-            primary: "#ef4444",
+            primary: "#FF5252",
             secondary: "#fff",
           },
         },

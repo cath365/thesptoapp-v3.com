@@ -103,7 +103,7 @@ export default function HealthTipTable() {
                   <p className="text-xs line-clamp-2" style={{ color: "#B8A9D1" }}>{tip.translations?.en?.body || ""}</p>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: "#E8D5F0" }}>
-                      <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#10b981" : "#9B6DAE" }} />
+                      <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#4CAF50" : "#9B6DAE" }} />
                     </div>
                     <span className="text-xs font-medium" style={{ color: "#9B6DAE" }}>{count}/{SUPPORTED_LANGUAGES.length} langs</span>
                   </div>
@@ -146,7 +146,7 @@ export default function HealthTipTable() {
                     <div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: "#E8D5F0" }}>
-                          <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#10b981" : "#9B6DAE" }} />
+                          <div className="h-1.5 rounded-full" style={{ width: `${pct}%`, backgroundColor: pct === 100 ? "#4CAF50" : "#9B6DAE" }} />
                         </div>
                         <span className="text-xs font-medium" style={{ color: "#9B6DAE" }}>{count}/{SUPPORTED_LANGUAGES.length}</span>
                       </div>

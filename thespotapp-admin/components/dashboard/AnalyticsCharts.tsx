@@ -96,8 +96,8 @@ export default function AnalyticsCharts({ analytics }: Props) {
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#9B6DAE" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#9B6DAE" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient
                     id="colorDrafts"
@@ -106,8 +106,8 @@ export default function AnalyticsCharts({ analytics }: Props) {
                     x2="0"
                     y2="1"
                   >
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#FF9800" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#FF9800" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
@@ -140,20 +140,20 @@ export default function AnalyticsCharts({ analytics }: Props) {
                   type="monotone"
                   dataKey="published"
                   name="Published"
-                  stroke="#7c3aed"
+                  stroke="#9B6DAE"
                   strokeWidth={2.5}
                   fill="url(#colorPublished)"
-                  dot={{ r: 3, fill: "#7c3aed", strokeWidth: 0 }}
+                  dot={{ r: 3, fill: "#9B6DAE", strokeWidth: 0 }}
                   activeDot={{ r: 5 }}
                 />
                 <Area
                   type="monotone"
                   dataKey="drafts"
                   name="Drafts"
-                  stroke="#f59e0b"
+                  stroke="#FF9800"
                   strokeWidth={2.5}
                   fill="url(#colorDrafts)"
-                  dot={{ r: 3, fill: "#f59e0b", strokeWidth: 0 }}
+                  dot={{ r: 3, fill: "#FF9800", strokeWidth: 0 }}
                   activeDot={{ r: 5 }}
                 />
               </AreaChart>
@@ -250,7 +250,7 @@ export default function AnalyticsCharts({ analytics }: Props) {
                   y2="0"
                 >
                   <stop offset="0%" stopColor="#C69FD5" />
-                  <stop offset="100%" stopColor="#7c3aed" />
+                  <stop offset="100%" stopColor="#9B6DAE" />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f3f4f6" />

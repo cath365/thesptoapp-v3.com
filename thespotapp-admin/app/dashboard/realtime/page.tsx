@@ -35,7 +35,7 @@ export default function RealtimePage() {
     {
       label: "Active Today",
       value: metrics.activeToday,
-      bg: "linear-gradient(135deg, #10b981, #059669)",
+      bg: "linear-gradient(135deg, #4CAF50, #388E3C)",
       text: "#fff",
       sub: "Logged in today",
     },
@@ -57,7 +57,7 @@ export default function RealtimePage() {
           </h1>
           <span
             className="h-2 w-2 rounded-full animate-pulse"
-            style={{ backgroundColor: "#10b981" }}
+            style={{ backgroundColor: "#4CAF50" }}
           />
         </div>
         <p className="text-sm mt-1" style={{ color: "#B8A9D1" }}>

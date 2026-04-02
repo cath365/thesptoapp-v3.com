@@ -423,9 +423,9 @@ export default function UsersPage() {
                     </div>
                     <div className="flex items-center gap-1.5">
                       {active && !isDeactivated && (
-                        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#10b981" }} />
+                        <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#4CAF50" }} />
                       )}
-                      <span className="text-xs" style={{ color: active && !isDeactivated ? "#10b981" : "#B8A9D1" }}>
+                      <span className="text-xs" style={{ color: active && !isDeactivated ? "#4CAF50" : "#B8A9D1" }}>
                         {formatRelative(user.lastLogin)}
                       </span>
                     </div>
@@ -459,8 +459,8 @@ export default function UsersPage() {
                       disabled={actionLoading === deactivateKey}
                       className="flex-1 px-3 py-1.5 rounded-xl text-xs font-medium"
                       style={{
-                        backgroundColor: isDeactivated ? "#D1FAE5" : "#F3F4F6",
-                        color: isDeactivated ? "#059669" : "#6B7280",
+                        backgroundColor: isDeactivated ? "#E8F5E9" : "#F3F4F6",
+                        color: isDeactivated ? "#4CAF50" : "#6B7280",
                         opacity: actionLoading === deactivateKey ? 0.6 : 1,
                       }}
                     >
@@ -587,10 +587,10 @@ export default function UsersPage() {
                       {active && !isDeactivated && (
                         <span
                           className="h-1.5 w-1.5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: "#10b981" }}
+                          style={{ backgroundColor: "#4CAF50" }}
                         />
                       )}
-                      <span className="text-xs" style={{ color: active && !isDeactivated ? "#10b981" : "#B8A9D1" }}>
+                      <span className="text-xs" style={{ color: active && !isDeactivated ? "#4CAF50" : "#B8A9D1" }}>
                         {formatRelative(user.lastLogin)}
                       </span>
                     </div>
@@ -635,16 +635,16 @@ export default function UsersPage() {
                         disabled={actionLoading === deactivateKey}
                         className="px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap"
                         style={{
-                          backgroundColor: isDeactivated ? "#D1FAE5" : "#F3F4F6",
-                          color: isDeactivated ? "#059669" : "#6B7280",
+                          backgroundColor: isDeactivated ? "#E8F5E9" : "#F3F4F6",
+                          color: isDeactivated ? "#4CAF50" : "#6B7280",
                           opacity: actionLoading === deactivateKey ? 0.6 : 1,
                         }}
                         onMouseEnter={(e) => {
                           if (actionLoading !== deactivateKey)
-                            e.currentTarget.style.backgroundColor = isDeactivated ? "#A7F3D0" : "#E5E7EB";
+                            e.currentTarget.style.backgroundColor = isDeactivated ? "#C8E6C9" : "#E5E7EB";
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = isDeactivated ? "#D1FAE5" : "#F3F4F6";
+                          e.currentTarget.style.backgroundColor = isDeactivated ? "#E8F5E9" : "#F3F4F6";
                         }}
                       >
                         {actionLoading === deactivateKey
