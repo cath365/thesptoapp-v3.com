@@ -25,8 +25,7 @@
         "resourceClass": "default"
       },
       "env": {
-        "EXPO_PUBLIC_ENCRYPTION_COMPLIANCE": "standard",
-        "TAR_OPTIONS": "--no-same-permissions --no-same-owner"
+        "EXPO_PUBLIC_ENCRYPTION_COMPLIANCE": "standard"
       }
     }
   },
