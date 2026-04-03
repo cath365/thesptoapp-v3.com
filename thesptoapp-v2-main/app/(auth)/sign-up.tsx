@@ -4,7 +4,7 @@ import { SpotColors } from '@/constants/Colors';
 import { useAppState } from '@/hooks/useAppState';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
-import { checkConnectivity, signUp } from '@/lib/auth';
+import { signUp } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -89,16 +89,6 @@ export default function SignUpScreen() {
     console.log('[SignUp] Attempt for:', email.trim());
 
     try {
-      // Pre-flight connectivity check
-      const online = await checkConnectivity();
-      if (!online) {
-        Alert.alert(
-          'No Internet Connection',
-          'Please check your network connection and try again.'
-        );
-        return;
-      }
-
       const result = await signUp({
         email: email.trim(),
         password,

@@ -4,7 +4,7 @@ import { SpotColors } from '@/constants/Colors';
 import { useAppState } from '@/hooks/useAppState';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
-import { checkConnectivity, sendPasswordReset, signIn } from '@/lib/auth';
+import { sendPasswordReset, signIn } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -82,16 +82,6 @@ export default function SignInScreen() {
     console.log('[SignIn] Login attempt for:', email.trim());
 
     try {
-      // Pre-flight connectivity check — surface a clear message before Firebase times out
-      const online = await checkConnectivity();
-      if (!online) {
-        Alert.alert(
-          'No Internet Connection',
-          'Please check your network connection and try again.'
-        );
-        return;
-      }
-
       const result = await signIn({ email: email.trim(), password });
 
       if (result.error) {

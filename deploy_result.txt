@@ -1,0 +1,3 @@
+Firebase CLI: C:\Users\emman\OneDrive\Documents\thesptoapp-v2-main\node_modules\firebase-tools\lib\bin\firebase.js
+FAILED:
+ERROR: spawnSync C:\WINDOWS\system32\cmd.exe ETIMEDOUT

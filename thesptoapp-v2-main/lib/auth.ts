@@ -167,7 +167,7 @@ export async function signIn({ email, password }: SignInData): Promise<AuthRespo
     try {
       const userCredential = await withTimeout(
         signInWithEmailAndPassword(auth, trimmedEmail, password),
-        15000,
+        30000,
         'Sign in'
       );
       const user = userCredential.user;
@@ -191,7 +191,7 @@ export async function signIn({ email, password }: SignInData): Promise<AuthRespo
 
         const userCredential = await withTimeout(
           signInWithEmailAndPassword(auth, trimmedEmail, password),
-          15000,
+          30000,
           'Sign in (retry)'
         );
         const user = userCredential.user;

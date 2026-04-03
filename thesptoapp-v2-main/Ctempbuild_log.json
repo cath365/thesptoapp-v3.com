@@ -1,0 +1,55 @@
+- Fetching the build…
+✔ Found a matching build for the project @emmanuel4534/the-spot-app-v2
+{
+  "id": "b11fc541-2636-4ad8-bf1d-23c015ffe950",
+  "status": "ERRORED",
+  "platform": "ANDROID",
+  "error": {
+    "errorCode": "UNKNOWN_ERROR",
+    "message": "Unknown error. See logs of the Build complete hook build phase for more information."
+  },
+  "artifacts": {},
+  "fingerprint": {
+    "id": "019d4a10-50b9-7aba-a041-6a4e3dc35d47",
+    "hash": "71b85a2d2574614f7d73825d07c13110f3863a66"
+  },
+  "initiatingActor": {
+    "id": "53552ed1-9821-4fdf-88c3-be130adb6c3a",
+    "displayName": "emmanuel4534"
+  },
+  "logFiles": [
+    "https://job-logs.eascdn.net/production/b11fc541-2636-4ad8-bf1d-23c015ffe950/1775079275829-b2696113-feaa-4d0c-8bed-0746e472ce87.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260402%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260402T005322Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=5b11689364c4eed7365107ed9fd9f8bf76228b3e5bbaf7099113435a6329ad62a142aa07a3e4863db76040cadce6460ea11cd90ec0faf4ce1221527567766900ef23cc32fa7e662457994233d39c89d8c1d5f442ea918e71bcf43052243b8372ef8a3125db7b10bbddcb3f76c11f15baf621ea9ad8cffc82fe9277eb1b0b20ef8d31cb4087bd74b6fddfd3c9eef61c8c055bbd19f437751bcf3c95ea1fcd119491c8e610f1044d580461191bfe395b4652b0bfba76252587cf4798fb52196f0f20782e0c9dab79b256e3dd3641afb30e97e81a599089a8840f92617929e56278d7a9b0e54075b75d6d48cd8015b75ea3abd07f7d8c4e8bbb87676076cefa68a8",
+    "https://job-logs.eascdn.net/production/b11fc541-2636-4ad8-bf1d-23c015ffe950/1775080379258-2727a286-45be-41cd-a054-40a6eb07900e.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260402%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260402T005322Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=47e0ba19aeab095bfc2e6fc3f0074324b2f910ac715fc6c713e0100dd082757c6537f9f37393990a9ce803f2ebbf552ea9fa92e504bf0e78fc5c95e4cce2d5e01a88c529962dda8be37d95ea083498e8c91dc53c5cf142afba694f57670aa4c55b4af9eb62a5cbee0c1ad29ffee8764a75fde6e2faf6a97c75f99a8f79977d2c744f26ec56829bb91d56121adebefbd264115b2607e749ca33adddc01de0d3395b4cfb367992fada41fea97410072bf84a39586e9d9902d0107a559e0c3a8f24a6e570fd15d5e7825a355239480da46e99510064311abb8ca021d6d061b3e63700e59b5c9e96d917e19b96c8d33b00b0533ad266c41c7a22b8066e3b51488d5d",
+    "https://job-logs.eascdn.net/production/b11fc541-2636-4ad8-bf1d-23c015ffe950/1775080379467-3651cf0a-779b-4dc3-a9c5-28d6613c3450.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260402%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260402T005322Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=898e6c740c8c4d74cc9b708fc8a4c5d5e78dcac02eba2efb0e675d853c8c06928369feaac4914dcd6aebfbd07c88f7e5ae86b78a746766bf729fab050f22f301062fe9948c74fb8caccf681cd553f82bc5f644d8d211c0f63431f3609b78e897b6982bc0e39533a49d69fe4e9cad23dee04e5bf782395138c272e5f6425a5b604e0fe47dea42486364b374995d5e74445ee0ddbce0cb7cdfd06a5b34589b92fdcc51f871bdc3ed368159c52d4d8d06b0f96d12bacfbb10de7f77bc41aa1d932642474214a61cf3e5a44b5aa6da07076090d81141abe7fd5b8a8215c421fcd4585cf7b1be83887fb32db3609d2861c03fd65141f2de6227a1ccc504be5f4a0e71",
+    "https://job-logs.eascdn.net/production/b11fc541-2636-4ad8-bf1d-23c015ffe950/1775080379637-6b84c60b-c598-4d37-b719-953120fc158b.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260402%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260402T005322Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=114f2da1219c7853043f1ceb86777e4069cb224cf722b4db0757cf82ddde174077fd69cf38360dfcebaedd12d76d40039939ddccbb33d8184354f42f696d3bd5c3120faa97d120669416de420a56c37b64a73b374b8dbbea66c8bc4bb4886f09ee89f139c477da157f947fbc33279ef2ecf85c24aca897cab71a1c97dc6e44f6ebb07df49d0273365bb5a8b9900b5e4ff54f8f454e973c633c1a0a55c5f14d0602d9208747de06eab4a88454fd75720bb9ce580abc054b75fb8fa37043f5fdaf1b705a361b9ab6460905d17202d5589b2d55f408b03b677bdbcb08fa84b28f6e424d5fd9c5d10c62fd27f8b02b028debef0b9520e86f55ea66456b1488a8345b"
+  ],
+  "project": {
+    "id": "7afa0315-0ed5-40d7-aa1d-90c8ea3bfc94",
+    "name": "THE SPOT APP V2",
+    "slug": "the-spot-app-v2",
+    "ownerAccount": {
+      "id": "8e52cc17-f754-494f-8ef8-6fae759a44cb",
+      "name": "emmanuel4534"
+    }
+  },
+  "channel": "production",
+  "distribution": "STORE",
+  "buildProfile": "production",
+  "sdkVersion": "53.0.0",
+  "appVersion": "2.1.0",
+  "appBuildVersion": "3",
+  "runtimeVersion": "2.1.0",
+  "gitCommitHash": "c3eabb46394bdcae9d21d453e73aec2dc07b3d5c",
+  "gitCommitMessage": "Fix broken links, update colors, and UI improvements\n\n- Fix broken/external links across screens\n- Update color constants and SpotColors theme\n- Improve auth flows (sign-in, sign-up)\n- Update home, journal, bookmarks, period tracker, profile tabs\n- Refresh UI components (Button, Input, OnboardingPager, AnnouncementBanner)\n- Update hooks (useArticles, useAuth, useBookmarks, useDailyTip, usePushNotifications)\n- Fix Firebase and i18n initialization\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>",
+  "priority": "NORMAL",
+  "createdAt": "2026-04-01T21:34:35.472Z",
+  "updatedAt": "2026-04-01T21:53:58.595Z",
+  "completedAt": "2026-04-01T21:53:47.546Z",
+  "expirationDate": "2026-05-01T21:34:35.589Z",
+  "isForIosSimulator": false,
+  "metrics": {
+    "buildWaitTime": 230,
+    "buildQueueTime": 1139217,
+    "buildDuration": 12177
+  }
+}

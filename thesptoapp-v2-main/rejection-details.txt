@@ -1,0 +1,69 @@
+=== 1. VERSION REJECTION DETAILS ===
+State: WAITING_FOR_REVIEW
+Included types: builds/23b7a10f-06b9-4155-a7b0-4fbe23e02d97, appStoreVersionSubmissions/193a42ea-6826-4118-a8d2-d6483702e08c
+
+=== 2. ALL REVIEW SUBMISSIONS ===
+  Sub: 6668e186-b93d-47c6-8db6-de6400ab53c5 | state: READY_FOR_REVIEW | submitted: null
+  Sub: 5e771efd-6585-45d8-8bd3-e070cf14fcfc | state: WAITING_FOR_REVIEW | submitted: 2026-03-25T22:59:50.131Z
+  Sub: 6937bae7-11ca-4bab-9e2a-4da19be11658 | state: COMPLETE | submitted: 2026-03-24T21:47:08.952Z
+  Sub: 2d551f76-ad11-4e93-b4f4-aa65c4c8797c | state: COMPLETE | submitted: 2026-03-13T21:56:41.986Z
+  Sub: 0ae4c5a9-bff6-49d9-852c-7d9f73ef45f7 | state: COMPLETE | submitted: 2026-02-17T07:25:58.507Z
+  Included: type=reviewSubmissionItems id=NWU3NzFlZmQtNjU4NS00NWQ4LThiZDMtZTA3MGNmMTRmY2ZjfDZ8ODgzMzU4MzY0 state=READY_FOR_REVIEW
+  Included: type=reviewSubmissionItems id=NjkzN2JhZTctMTFjYS00YmFiLTllMmEtNGRhMTliZTExNjU4fDZ8ODgzMzU4MzY0 state=REMOVED
+  Included: type=reviewSubmissionItems id=MmQ1NTFmNzYtYWQxMS00ZTkzLWI0ZjQtYWE2NWM0Yzg3OTdjfDZ8ODgzMzU4MzY0 state=REMOVED
+  Included: type=reviewSubmissionItems id=MGFlNGM1YTktYmZmNi00OWQ5LTg1MmMtN2Q5ZjczZWY0NWY3fDZ8ODc5NjgyNTgx state=APPROVED
+
+=== 3. REJECTION SUBMISSION DETAILS (2d551f76) ===
+State: COMPLETE
+  Item: MmQ1NTFmNzYtYWQxMS00ZTkzLWI0ZjQtYWE2NWM0Yzg3OTdjfDZ8ODgzMzU4MzY0 state=REMOVED
+
+=== 4. RESOLUTION CENTER / CUSTOMER REVIEWS ===
+Customer reviews status: 200
+
+=== 5. APP STORE REVIEW DETAIL (contact/notes) ===
+Contact: Tendai Miti
+Email: feministspotapp@gmail.com
+Phone: +260 962302300
+Demo user: apple.review@thespotapp.com
+Demo password: ***set***
+Notes: The Spot App is a sexual and reproductive health education platform for young people. To test the full app:\n\n1. Sign in with the demo account credentials provided.\n2. Browse health articles (Home tab) and health tips.\n3. Use the Period Tracker to log menstrual cycles.\n4. View the Information section for SRHR resources.\n5. Bookmark articles and view reading history in your Profile.\n\nThe app requires an internet connection for initial content loading. All content is educational and provided by the Sistah Sistah Foundation, a registered NGO.
+
+=== 6. VERSION SUBMISSION OBJECT ===
+Status: 403
+Data: {
+  "errors": [
+    {
+      "id": "3ee9804b-2910-4d0c-a41a-87eb7193159e",
+      "status": "403",
+      "code": "FORBIDDEN_ERROR",
+      "title": "The given operation is not allowed",
+      "detail": "The resource 'appStoreVersionSubmissions' does not allow 'GET_COLLECTION'. Allowed operation is: DELETE"
+    }
+  ]
+}
+
+=== 7. ORIGINAL REJECTION SUBMISSION (6937bae7) ===
+State: COMPLETE
+Full attrs: {
+  "submittedDate": "2026-03-24T21:47:08.952Z",
+  "platform": "IOS",
+  "state": "COMPLETE"
+}
+  Included: actors | API_KEY:X79F2H3QXT | {"apiKeyId":"X79F2H3QXT","actorType":"API_KEY","userEmail":null,"userFirstName":null,"userLastName":null}
+  Included: reviewSubmissionItems | NjkzN2JhZTctMTFjYS00YmFiLTllMmEtNGRhMTliZTExNjU4fDZ8ODgzMzU4MzY0 | {"state":"REMOVED"}
+
+=== 8. APP INFO (REJECTION STATE) ===
+  AppInfo: 76bb90d4-bef8-460a-b855-498ed2eea6b9 state=READY_FOR_SALE
+  AppInfo: d95836c2-b098-4f8e-a635-4a58bee49097 state=WAITING_FOR_REVIEW
+
+=== 9. REJECTED BUILD 20 DETAILS ===
+Build #: 20
+Processing: VALID
+  Included: betaBuildLocalizations | {"whatsNew":null,"locale":"en-GB"}
+  Included: buildBetaDetails | {"autoNotifyEnabled":true,"internalBuildState":"IN_BETA_TESTING","externalBuildState":"READY_FOR_BETA_SUBMISSION"}
+
+=== 10. VERSION ROUTING/COVERAGE ===
+Routing status: 200
+
+=== 11. APP PRIVACY ===
+App clips status: 200

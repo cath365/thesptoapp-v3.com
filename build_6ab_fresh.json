@@ -1,0 +1,55 @@
+﻿{
+  "id": "6ab2655c-4ed2-49f4-ab7e-ef38e8149ef1",
+  "status": "ERRORED",
+  "platform": "IOS",
+  "error": {
+    "errorCode": "UNKNOWN_ERROR",
+    "message": "Unknown error. See logs of the Install dependencies build phase for more information."
+  },
+  "artifacts": {
+    "xcodeBuildLogsUrl": "https://job-logs.eascdn.net/production-xcode-logs/6ab2655c-4ed2-49f4-ab7e-ef38e8149ef1?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260325%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260325T081051Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=6c54cf51eb8ffc0b7e3c7178e980bd6a925d8c87301bd717ffea000de899472b2a180d04bd5b0bc168180b717e1250fde37bde590a344b67df9b55bf3c6edda1ee101d894443b4ddc98a4a3845e1094c7791e9fd98bbd8932596624cdb85c52fcadb4070f5f544fd5cf4b81fe0dd166c0aa662e7e4abe0e4c75482427f1b631f2b8d79be40d469f4cbbe8712395d41d9a852a8e6d3742c95ffe18f11234063a18d2e860cc23b75a26d84cc5836a5d2720c5523dda6008d643ba7eae2c63b41be17e937c4d2feec312ad2511588dd37898cb1e8e885237adfe182c097ce0ceb90883b1e9c47c67bede3f823b2936244cbc6c81fd8019b567f01f2869f7b454fc1"
+  },
+  "fingerprint": {
+    "id": "019d23ba-8227-7701-b2c3-c6765ab762e1",
+    "hash": "055df411ab72d30310fcabe83b8f479391d33919"
+  },
+  "initiatingActor": {
+    "id": "8e3718e4-dd18-44fa-bb4f-42e7436163bb",
+    "displayName": "spot-app23"
+  },
+  "logFiles": [
+    "https://job-logs.eascdn.net/production/6ab2655c-4ed2-49f4-ab7e-ef38e8149ef1/1774425874059-5c185caa-7901-4537-99ac-4f2eb9b9ddc3.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260325%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260325T081051Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=c0ae4176f7eb560794304c63823af12e36812b767613e8bdc369d08bb4d52d7b0bbff9154b754d7a15d970be04ef56eff2fb12f295a89701493d8fc8978984b3f4764f0c9356935b3b65280bc3a16f596c0fd796348c089bf5bf52c0fbcdf91912cebce4feb44f25fd4acdd752ee5f2de0fcee951cb9117228273ccfead45b3c085051caca37cc6d513520ec357b85e70b6843a0924921bbb4f75954bb4e4e65de050c9ac22d0a594a4bed00b1651049d9951f574e56b1a72b38308088e7db42493ad6ebacc95bc6c41c4d509412862e693d86f46227ef4c746dc937455dd1a086030fa74b10db370d23293fdc470331514feee4b1f990b1591099fa80ea1e1f",
+    "https://job-logs.eascdn.net/production/6ab2655c-4ed2-49f4-ab7e-ef38e8149ef1/1774425879163-6aaee24b-5923-45ce-a6c8-956832466c02.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260325%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260325T081051Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=b09d7e90ebd5ed15d736b8869c6c60e7986d4419795e5e1a11a60c8e79620d70e90a1e22fc0e4535f24523e2db1dbafeeb7d67f6e21c3038ef997963e77eb3b3f68fe83a815c70c04cbb70acc9a9a437969465dad4a7e28e32ccbbdb5b02b593c45c8919461416c33ef51402393b85f19755fe2f1685eaedacc04bcc14ce1a6f0d0885be07f0208b19759ed48ad6aa6c72bf2aa0c5f8668eb8830f39a133b47334bab8d483513ac773aed17379a2a20b2ab525c0eed137f90ac53f52c3d28c711d7f173a756edba9f38144b7041e290e21042a6c4e716b53b7f84ce40c8d97f61ed5b79476e43014ec17f2a74fb9b403c1bb17aaf447ad1290f6fcf5be03ea1d",
+    "https://job-logs.eascdn.net/production/6ab2655c-4ed2-49f4-ab7e-ef38e8149ef1/1774425879422-b2f047c3-c767-4c83-86bb-c2ac2fc7b33a.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260325%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260325T081051Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=593ad8c33f684be7c3f001369f5447174a47e4152a2a0fdfa575dee4f740e79cdb9a64b9adf2d03db3141ed683f1f5abb43cf1185bb0fe0025bbcea8b9de23fe3935e013e0a9b06860bd6a0aca9442d7c0e3c00ba9d748cfad2ad664548dbeffa94e61b1fa94a01ac97761384511970bfc54c23bbac98b576edac2f82649c8489f1be8df5ac23f2bdbf2ff07577599d5edc6a561811703f936367e94f0000cd75646ea879131da91865a9ee4d2dc31634d6323f807ce87481d1703cb1c6e6515e8294f9603e25353e3a3223db8fdc713728fb559e6fb4897ff3fc8dab3216826d8c231f4f5f61bd3e09111250b465e4b200059306f5b1721ee7fcbdd4720b3f3",
+    "https://job-logs.eascdn.net/production/6ab2655c-4ed2-49f4-ab7e-ef38e8149ef1/1774425879621-a331e146-e974-4be9-9463-05a1d89305d0.txt?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=www-production%40exponentjs.iam.gserviceaccount.com%2F20260325%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260325T081051Z&X-Goog-Expires=900&X-Goog-SignedHeaders=host&X-Goog-Signature=7676bc92bd475748e0e2d6674fc577a99df95010713daae09eab86ad6a43d93fbd11d62ad25d3e0bd987c29d712267206dc9a927526169368c3b50055c0149a4d59fbecb3ed0b6ad51e30159c646dffb2a829d7055b3622b41ed5f99580549362d82004ec19e56510e4164adc72ae947f80d10b329883c9ca3e9bc4df07ba4aa00332c7c7882f808207bc6a05dd270469880df2430fae9abc94de8c8c8c7345858163596c4b4080c2cdaf71a8e88cbc17a016bf8fa589303dbfdebf1ab2f8e8af924839591d9014e9eeecffd5cd357c4f3ba4c74e473c531a892967bcb95fa9857d6ef35c1dded15b23323fe45fb0453ef9f752d67db47753e690366bec178f4"
+  ],
+  "project": {
+    "id": "38a9ec42-f71d-4462-95c5-c80e1244d498",
+    "name": "The Spot App",
+    "slug": "the-spot-app",
+    "ownerAccount": {
+      "id": "83055421-c371-4e65-81ed-6ff6da43fe9c",
+      "name": "spot-app23s-organization"
+    }
+  },
+  "channel": "production",
+  "distribution": "STORE",
+  "buildProfile": "production",
+  "sdkVersion": "53.0.0",
+  "appVersion": "2.1.0",
+  "appBuildVersion": "25",
+  "runtimeVersion": "2.1.0",
+  "gitCommitHash": "66ed1c9dad353257ce1132af7a15fe2607531860",
+  "gitCommitMessage": "Fix iOS submit config: use correct ASC API key X79F2H3QXT",
+  "priority": "NORMAL",
+  "createdAt": "2026-03-25T08:04:33.653Z",
+  "updatedAt": "2026-03-25T08:05:35.084Z",
+  "completedAt": "2026-03-25T08:05:34.361Z",
+  "expirationDate": "2026-04-24T08:04:33.785Z",
+  "isForIosSimulator": false,
+  "metrics": {
+    "buildWaitTime": 280,
+    "buildQueueTime": 46600,
+    "buildDuration": 9684
+  }
+}

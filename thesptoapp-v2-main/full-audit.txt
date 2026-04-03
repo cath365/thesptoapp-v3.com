@@ -1,0 +1,66 @@
+===== 1. PRIVACY POLICY =====
+AppInfo 76bb90d4-bef8-460a-b855-498ed2eea6b9 state=READY_FOR_SALE
+  Locale: en-GB
+  Privacy Policy URL: https://thesptoapp-v2.vercel.app/
+  Privacy Policy Text: (empty)
+  Privacy Choices URL: https://thesptoapp-v2.vercel.app/
+AppInfo d95836c2-b098-4f8e-a635-4a58bee49097 state=REJECTED
+  Locale: en-GB
+  Privacy Policy URL: https://thesptoapp-v2.vercel.app/privacy
+  Privacy Policy Text: (empty)
+  Privacy Choices URL: https://thesptoapp-v2.vercel.app/privacy
+
+===== 2. APP PRIVACY / DATA COLLECTION =====
+App v2 status: Error
+
+===== 3. AGE RATING =====
+State: READY_FOR_SALE
+  Health/Wellness: true
+  Medical info: INFREQUENT_OR_MILD
+  Mature themes: INFREQUENT_OR_MILD
+  Sexual content: NONE
+  User generated content: false
+  Messaging/Chat: false
+  Gambling: false
+  Unrestricted web: false
+  Age rating: NONE
+  NOTE: SRHR app with sexualContentOrNudity=NONE - this may be flagged
+
+===== 4. SCREENSHOTS =====
+Locale: en-GB
+  Screenshot sets: 3
+  Present types: APP_IPHONE_65, APP_IPHONE_67, APP_IPAD_PRO_3GEN_129
+    APP_IPHONE_65: 5 screenshots
+    APP_IPHONE_67: 5 screenshots
+    APP_IPAD_PRO_3GEN_129: 5 screenshots
+  NOTE: No iPad Pro 6th gen screenshots (APP_IPAD_PRO_6GEN_129)
+
+===== 5. METADATA COMPLETENESS =====
+Locale: en-GB
+  Description length: 1973
+  Keywords: SRHR,sexual health,period tracker,cycle tracker,ovulation,women health,contraception,pregnancy
+  Support URL: https://thesptoapp-v2.vercel.app/
+  Marketing URL: https://thesptoapp-v2.vercel.app/
+  Whats New: Bug fixes and performance improvements\nImproved security and stability\nUpdated backend infrastructure
+
+===== 6. EXPORT COMPLIANCE =====
+Uses non-exempt encryption: false
+
+===== 7. APP CATEGORY =====
+
+===== 8. REVIEW CONTACT & DEMO ACCOUNT =====
+Contact: Tendai Miti
+Email: feministspotapp@gmail.com
+Phone: +260 962302300
+Demo user: apple.review@thespotapp.com
+Demo pass set: YES
+Notes length: 738
+Demo required: true
+
+===== 9. IN-APP PURCHASES =====
+IAPs: 0
+
+========================================
+===== FULL AUDIT REPORT =====
+========================================
+NO ISSUES FOUND
