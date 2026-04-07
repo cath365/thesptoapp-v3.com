@@ -1,11 +1,17 @@
 const https = require('https');
+const {
+  FIREBASE_API_KEY,
+  APPLE_REVIEW_EMAIL,
+  BACKUP_REVIEW_EMAIL,
+  CANONICAL_REVIEW_PASSWORD,
+} = require('./review-credentials');
 
 function fb(ep, body) {
   return new Promise((res, rej) => {
     const d = JSON.stringify(body);
     const req = https.request({
       hostname: 'identitytoolkit.googleapis.com',
-      path: '/v1/accounts:' + ep + '?key=AIzaSyCsbVq08esnwhZHFwj9dcEjnAdCnpaSIs0',
+      path: '/v1/accounts:' + ep + '?key=' + FIREBASE_API_KEY,
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(d) }
     }, (r) => {
@@ -21,8 +27,8 @@ function fb(ep, body) {
 
 async function main() {
   const accounts = [
-    { email: 'apple.review@thespotapp.com', password: 'AppleReview2026!' },
-    { email: 'demo.reviewer@thespotapp.com', password: 'AppleReview2026!' },
+    { email: APPLE_REVIEW_EMAIL, password: CANONICAL_REVIEW_PASSWORD },
+    { email: BACKUP_REVIEW_EMAIL, password: CANONICAL_REVIEW_PASSWORD },
   ];
 
   for (const a of accounts) {

@@ -1,4 +1,6 @@
 /**
+ * DEPRECATED: Use scripts/fix-apple-review-account.js for all Apple review credential updates.
+ *
  * Create a fresh demo account for Apple reviewers and update ASC.
  * Uses a new email since we can't reset the old one's password.
  */
@@ -20,7 +22,7 @@ const FIREBASE_API_KEY = 'AIzaSyCsbVq08esnwhZHFwj9dcEjnAdCnpaSIs0';
 
 // New demo account
 const DEMO_EMAIL = 'demo.reviewer@thespotapp.com';
-const DEMO_PASSWORD = 'SpotReview2026!';
+const DEMO_PASSWORD = 'AppleReview2026!';
 
 function ascApi(method, apiPath, body) {
   return new Promise((resolve, reject) => {
@@ -71,6 +73,7 @@ function firebaseApi(endpoint, body) {
 
 async function main() {
   console.log('=== CREATE FRESH DEMO ACCOUNT ===\n');
+  console.log('WARNING: This script is deprecated. Prefer: node scripts/fix-apple-review-account.js\n');
 
   // Step 1: Create account in Firebase
   console.log('1. Creating Firebase account:', DEMO_EMAIL);

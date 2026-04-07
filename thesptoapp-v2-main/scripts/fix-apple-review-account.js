@@ -19,16 +19,16 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const {
+  FIREBASE_API_KEY,
+  FIREBASE_PROJECT,
+  APPLE_REVIEW_EMAIL,
+  BACKUP_REVIEW_EMAIL,
+  CANONICAL_REVIEW_PASSWORD,
+} = require('./review-credentials');
 
-const FIREBASE_API_KEY = 'AIzaSyCsbVq08esnwhZHFwj9dcEjnAdCnpaSIs0';
-const FIREBASE_PROJECT = 'spot-app-575e9';
-
-// The email Apple reviewers see in App Store Connect
-const APPLE_REVIEW_EMAIL = 'apple.review@thespotapp.com';
-const CANONICAL_PASSWORD = 'AppleReview2026!';
-
-// Also ensure the backup demo account stays healthy
-const BACKUP_EMAIL = 'demo.reviewer@thespotapp.com';
+const CANONICAL_PASSWORD = CANONICAL_REVIEW_PASSWORD;
+const BACKUP_EMAIL = BACKUP_REVIEW_EMAIL;
 
 // ── Firebase REST helper ──────────────────────────────────────────────────
 function firebaseAuth(endpoint, body) {

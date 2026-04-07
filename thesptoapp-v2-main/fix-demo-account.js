@@ -1,4 +1,6 @@
 /**
+ * DEPRECATED: Use scripts/fix-apple-review-account.js for all Apple review credential updates.
+ *
  * Fix the demo account for Apple reviewers:
  * 1. Check what demo credentials are set in App Store Connect
  * 2. Create the demo account in Firebase if it doesn't exist
@@ -25,7 +27,7 @@ const FIREBASE_API_KEY = 'AIzaSyCsbVq08esnwhZHFwj9dcEjnAdCnpaSIs0';
 
 // Demo account credentials
 const DEMO_EMAIL = 'apple.review@thespotapp.com';
-const DEMO_PASSWORD = 'Review2026!';
+const DEMO_PASSWORD = 'AppleReview2026!';
 
 function ascApi(method, apiPath, body) {
   return new Promise((resolve, reject) => {
@@ -79,6 +81,7 @@ function firebaseApi(endpoint, body) {
 
 async function main() {
   console.log('=== FIX DEMO ACCOUNT FOR APPLE REVIEW ===\n');
+  console.log('WARNING: This script is deprecated. Prefer: node scripts/fix-apple-review-account.js\n');
 
   // Step 1: Check current ASC review detail
   console.log('1. Checking App Store Connect review detail...');

@@ -4,11 +4,11 @@ import { SpotColors } from '@/constants/Colors';
 import { useAppState } from '@/hooks/useAppState';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useResponsiveLayout } from '@/hooks/useResponsiveLayout';
-import { sendPasswordReset, signIn } from '@/lib/auth';
+import { checkConnectivity, sendPasswordReset, signIn } from '@/lib/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Alert,
     Image,
@@ -24,6 +24,8 @@ import {
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { appendAuthDiagnostic } from '@/lib/authDiagnostics';
+import { waitForAuthReady } from '@/lib/firebase';
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -39,9 +41,41 @@ export default function SignInScreen() {
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [isResetting, setIsResetting] = useState(false);
+  const [authSystemReady, setAuthSystemReady] = useState(false);
+  const [authReadyError, setAuthReadyError] = useState<string | null>(null);
 
   // Ref-based guard prevents double-fire even if state update is batched
   const loginInFlight = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function bootstrapAuth() {
+      const ready = await waitForAuthReady(12000);
+      if (cancelled) return;
+      if (!ready) {
+        setAuthReadyError('Sign in setup is taking longer than expected. You can retry in a moment.');
+        void appendAuthDiagnostic('ui:signIn:auth-ready-timeout', { timeoutMs: 12000 });
+      }
+      setAuthSystemReady(ready);
+    }
+
+    void bootstrapAuth();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function shouldOfferGuestFallback(errorMessage: string): boolean {
+    const msg = errorMessage.toLowerCase();
+    return (
+      msg.includes('network') ||
+      msg.includes('connection') ||
+      msg.includes('temporarily unavailable') ||
+      msg.includes('internal error') ||
+      msg.includes('timed out')
+    );
+  }
 
   const handleContinueAsGuest = async () => {
     try {
@@ -75,20 +109,52 @@ export default function SignInScreen() {
     // Double-tap guard: ref check + state check
     if (isLoading || loginInFlight.current) return;
 
+    if (!authSystemReady) {
+      const msg = authReadyError || 'Sign in is still preparing. Please wait a moment and try again.';
+      Alert.alert('Please Wait', msg);
+      return;
+    }
+
     loginInFlight.current = true;
     setIsLoading(true);
     setErrors({});
 
     console.log('[SignIn] Login attempt for:', email.trim());
+    void appendAuthDiagnostic('ui:signIn:tap', { email: email.trim() });
 
     try {
+      // Connectivity checks can be blocked by some networks; use this as a signal only.
+      const seemsOnline = await checkConnectivity();
+      if (!seemsOnline) {
+        console.warn('[SignIn] Connectivity pre-check failed, proceeding with Firebase sign-in attempt');
+      }
+
       const result = await signIn({ email: email.trim(), password });
 
       if (result.error) {
         console.warn('[SignIn] Login failed:', result.error);
-        Alert.alert('Sign In Failed', result.error);
+        void appendAuthDiagnostic('ui:signIn:failure', { message: result.error });
+        if (shouldOfferGuestFallback(result.error)) {
+          Alert.alert(
+            'Sign In Failed',
+            result.error,
+            [
+              { text: 'Try Again', style: 'default' },
+              {
+                text: 'Continue as Guest',
+                style: 'default',
+                onPress: () => {
+                  void handleContinueAsGuest();
+                },
+              },
+            ]
+          );
+        } else {
+          Alert.alert('Sign In Failed', result.error);
+        }
       } else {
         console.log('[SignIn] Login success, uid:', result.user?.uid);
+        void appendAuthDiagnostic('ui:signIn:success', { uid: result.user?.uid });
         // Navigation is handled automatically by the root layout
         // when Firebase auth state changes to authenticated.
       }
@@ -99,9 +165,23 @@ export default function SignInScreen() {
         platform: Platform.OS,
         isPad: Platform.OS === 'ios' && (Platform as any).isPad,
       });
+      void appendAuthDiagnostic('ui:signIn:exception', {
+        message: error?.message,
+        code: error?.code,
+      });
       Alert.alert(
         'Sign In Failed',
-        'An unexpected error occurred. Please check your connection and try again.'
+        'An unexpected error occurred. Please check your connection and try again.',
+        [
+          { text: 'Try Again', style: 'default' },
+          {
+            text: 'Continue as Guest',
+            style: 'default',
+            onPress: () => {
+              void handleContinueAsGuest();
+            },
+          },
+        ]
       );
     } finally {
       setIsLoading(false);
@@ -183,6 +263,7 @@ export default function SignInScreen() {
       {/* Form section */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? (isTablet ? 24 : 0) : 0}
         style={styles.formSection}
       >
         <ScrollView 
@@ -193,6 +274,9 @@ export default function SignInScreen() {
           <View style={[styles.formCard, formMaxWidth ? { maxWidth: formMaxWidth, alignSelf: 'center', width: '100%' } : undefined]}>
             <Text style={styles.welcomeTitle}>{t('auth.welcomeBack')}</Text>
             <Text style={styles.welcomeSubtitle}>{t('auth.signInSubtitle')}</Text>
+            {!authSystemReady && (
+              <Text style={styles.authBootText}>Preparing secure sign in...</Text>
+            )}
 
             <View style={styles.inputGroup}>
               <Input
@@ -202,6 +286,7 @@ export default function SignInScreen() {
                 error={errors.email}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoCorrect={false}
                 autoComplete="email"
                 placeholder="you@example.com"
               />
@@ -212,6 +297,8 @@ export default function SignInScreen() {
                 onChangeText={setPassword}
                 error={errors.password}
                 secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
                 autoComplete="password"
                 placeholder="Enter your password"
                 renderRight={() => (
@@ -237,7 +324,7 @@ export default function SignInScreen() {
               title={t('auth.signIn')}
               onPress={handleSignIn}
               loading={isLoading}
-              disabled={isLoading}
+              disabled={isLoading || !authSystemReady}
               style={styles.signInButton}
             />
 
@@ -295,6 +382,7 @@ export default function SignInScreen() {
               onChangeText={setResetEmail}
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
               autoComplete="email"
             />
             <Button
@@ -443,6 +531,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: SpotColors.textSecondary,
     marginBottom: 28,
+  },
+  authBootText: {
+    marginTop: -14,
+    marginBottom: 18,
+    color: SpotColors.textSecondary,
+    fontSize: 13,
+    fontWeight: '500',
   },
   inputGroup: {
     marginBottom: 8,

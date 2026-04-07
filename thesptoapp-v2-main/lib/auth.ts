@@ -14,7 +14,8 @@ import {
 } from 'firebase/auth';
 import { collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { Platform } from 'react-native';
-import { auth, db } from './firebase';
+import { appendAuthDiagnostic } from './authDiagnostics';
+import { auth, db, waitForAuthReady } from './firebase';
 
 export interface AuthResponse {
   user: User | null;
@@ -30,6 +31,15 @@ export interface SignUpData {
 export interface SignInData {
   email: string;
   password: string;
+}
+
+function normalizeEmailInput(email: string): string {
+  return email.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+}
+
+function normalizePasswordInput(password: string): string {
+  // iPad copy/paste can include invisible chars or surrounding spaces from review notes.
+  return password.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────
@@ -98,13 +108,16 @@ export async function checkConnectivity(): Promise<boolean> {
 // Sign up with email and password
 export async function signUp({ email, password, displayName }: SignUpData): Promise<AuthResponse> {
   try {
+    const startedAt = Date.now();
     if (!auth) {
       console.error('[Auth] Firebase auth is not initialised');
+      void appendAuthDiagnostic('auth:signUp:auth-missing');
       return { user: null, error: 'Sign up is temporarily unavailable. Please restart the app and try again.' };
     }
 
     const trimmedEmail = email.trim();
     console.log('[Auth] signUp attempt for:', trimmedEmail);
+    void appendAuthDiagnostic('auth:signUp:start', { email: trimmedEmail });
 
     const userCredential = await withTimeout(
       createUserWithEmailAndPassword(auth, trimmedEmail, password),
@@ -140,9 +153,18 @@ export async function signUp({ email, password, displayName }: SignUpData): Prom
       // Don't block sign-up if Firestore write fails
     }
 
+    void appendAuthDiagnostic('auth:signUp:success', {
+      uid: user.uid,
+      elapsedMs: Date.now() - startedAt,
+    });
+
     return { user, error: null };
   } catch (error: any) {
     console.error('[Auth] signUp error:', error?.code || error?.message || error);
+    void appendAuthDiagnostic('auth:signUp:error', {
+      code: error?.code,
+      message: error?.message,
+    });
     if (error instanceof Error && error.message.includes('timed out')) {
       return { user: null, error: 'Sign up is taking too long. Please check your internet connection and try again.' };
     }
@@ -154,19 +176,35 @@ export async function signUp({ email, password, displayName }: SignUpData): Prom
 // Sign in with email and password
 export async function signIn({ email, password }: SignInData): Promise<AuthResponse> {
   try {
+    const startedAt = Date.now();
     // Validate that auth is initialised before attempting sign-in
     if (!auth) {
       console.error('[Auth] Firebase auth is not initialised');
+      void appendAuthDiagnostic('auth:signIn:auth-missing');
       return { user: null, error: 'Sign in is temporarily unavailable. Please restart the app and try again.' };
     }
 
-    const trimmedEmail = email.trim();
-    console.log('[Auth] signIn start for:', trimmedEmail);
+    const authReady = await waitForAuthReady(10000);
+    if (!authReady) {
+      void appendAuthDiagnostic('auth:signIn:auth-not-ready-timeout', { timeoutMs: 10000 },);
+      return {
+        user: null,
+        error: 'Sign in is still preparing. Please wait a moment and try again.'
+      };
+    }
+
+    const normalizedEmail = normalizeEmailInput(email);
+    const normalizedPassword = normalizePasswordInput(password);
+    console.log('[Auth] signIn start for:', normalizedEmail);
+    void appendAuthDiagnostic('auth:signIn:start', {
+      email: normalizedEmail,
+      passwordNormalized: normalizedPassword !== password,
+    });
 
     // First attempt
     try {
       const userCredential = await withTimeout(
-        signInWithEmailAndPassword(auth, trimmedEmail, password),
+        signInWithEmailAndPassword(auth, normalizedEmail, normalizedPassword),
         30000,
         'Sign in'
       );
@@ -175,10 +213,37 @@ export async function signIn({ email, password }: SignInData): Promise<AuthRespo
 
       // Update Firestore in the background — do NOT block sign-in on this
       updateUserDocAfterSignIn(user).catch(() => {});
+      void appendAuthDiagnostic('auth:signIn:success', {
+        uid: user.uid,
+        elapsedMs: Date.now() - startedAt,
+        retried: false,
+      });
       return { user, error: null };
     } catch (firstError: any) {
       // If it's a credential error, don't retry — fail immediately
       if (isCredentialError(firstError)) {
+        // If the password appears to contain accidental surrounding spaces, retry once with raw input.
+        if (normalizedPassword !== password) {
+          console.warn('[Auth] signIn credential error after normalization, retrying with raw password');
+          void appendAuthDiagnostic('auth:signIn:retry-raw-password', {
+            code: firstError?.code,
+          });
+          const userCredential = await withTimeout(
+            signInWithEmailAndPassword(auth, normalizedEmail, password),
+            30000,
+            'Sign in (raw password retry)'
+          );
+          const user = userCredential.user;
+          console.log('[Auth] signIn success on raw-password retry, uid:', user.uid);
+          updateUserDocAfterSignIn(user).catch(() => {});
+          void appendAuthDiagnostic('auth:signIn:success', {
+            uid: user.uid,
+            elapsedMs: Date.now() - startedAt,
+            retried: true,
+            retryKind: 'raw-password',
+          });
+          return { user, error: null };
+        }
         console.warn('[Auth] signIn credential error (no retry):', firstError.code);
         throw firstError;
       }
@@ -186,11 +251,15 @@ export async function signIn({ email, password }: SignInData): Promise<AuthRespo
       // If it's a retryable (transient) error, try ONE more time
       if (isRetryableError(firstError)) {
         console.warn('[Auth] signIn transient error, retrying once:', firstError?.code || firstError?.message);
+        void appendAuthDiagnostic('auth:signIn:retry-transient', {
+          code: firstError?.code,
+          message: firstError?.message,
+        });
         // Brief pause before retry
         await new Promise(r => setTimeout(r, 1000));
 
         const userCredential = await withTimeout(
-          signInWithEmailAndPassword(auth, trimmedEmail, password),
+          signInWithEmailAndPassword(auth, normalizedEmail, normalizedPassword),
           30000,
           'Sign in (retry)'
         );
@@ -198,6 +267,12 @@ export async function signIn({ email, password }: SignInData): Promise<AuthRespo
         console.log('[Auth] signIn success on retry, uid:', user.uid);
 
         updateUserDocAfterSignIn(user).catch(() => {});
+        void appendAuthDiagnostic('auth:signIn:success', {
+          uid: user.uid,
+          elapsedMs: Date.now() - startedAt,
+          retried: true,
+          retryKind: 'transient',
+        });
         return { user, error: null };
       }
 
@@ -207,6 +282,10 @@ export async function signIn({ email, password }: SignInData): Promise<AuthRespo
   } catch (error: any) {
     // Log in both dev and production so device logs can be inspected
     console.error('[Auth] signIn failed:', error?.code || error?.message || error);
+    void appendAuthDiagnostic('auth:signIn:error', {
+      code: error?.code,
+      message: error?.message,
+    });
 
     // Handle timeout specifically
     if (error instanceof Error && error.message.includes('timed out')) {

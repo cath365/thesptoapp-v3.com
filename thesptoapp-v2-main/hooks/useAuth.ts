@@ -1,4 +1,5 @@
 import { auth, db } from '@/lib/firebase';
+import { appendAuthDiagnostic } from '@/lib/authDiagnostics';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
@@ -15,12 +16,15 @@ export function useAuth(): AuthState {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    void appendAuthDiagnostic('useAuth:subscribe:start');
+
     // Safety timeout: if onAuthStateChanged never fires (broken auth instance),
     // stop loading after 10 s so the app doesn't hang on a blank screen.
     const safetyTimer = setTimeout(() => {
       setIsLoading((prev) => {
         if (prev) {
           console.warn('[useAuth] Auth state not received after 10 s — stopping loader');
+          void appendAuthDiagnostic('useAuth:subscribe:timeout', { timeoutMs: 10000 });
         }
         return false;
       });
@@ -35,12 +39,19 @@ export function useAuth(): AuthState {
         auth,
         async (firebaseUser) => {
           clearTimeout(safetyTimer);
+          void appendAuthDiagnostic('useAuth:state:received', {
+            hasUser: !!firebaseUser,
+            uid: firebaseUser?.uid,
+          });
           if (firebaseUser) {
             // Check if user has been deactivated by an admin
             try {
               const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
               if (userDoc.exists() && userDoc.data()?.active === false) {
                 await signOut(auth);
+                void appendAuthDiagnostic('useAuth:state:deactivated-user', {
+                  uid: firebaseUser.uid,
+                });
                 Alert.alert(
                   'Account Deactivated',
                   'Your account has been deactivated. Please contact support for assistance.'
@@ -59,6 +70,10 @@ export function useAuth(): AuthState {
         (error) => {
           clearTimeout(safetyTimer);
           console.error('[useAuth] onAuthStateChanged error:', error);
+          void appendAuthDiagnostic('useAuth:state:error', {
+            message: error?.message,
+            code: error?.code,
+          });
           setUser(null);
           setIsLoading(false);
         }
@@ -67,12 +82,16 @@ export function useAuth(): AuthState {
       // If auth is broken, onAuthStateChanged itself throws
       clearTimeout(safetyTimer);
       console.error('[useAuth] Failed to subscribe to auth state:', e);
+      void appendAuthDiagnostic('useAuth:subscribe:error', {
+        message: e instanceof Error ? e.message : String(e),
+      });
       setUser(null);
       setIsLoading(false);
     }
 
     return () => {
       clearTimeout(safetyTimer);
+      void appendAuthDiagnostic('useAuth:subscribe:cleanup');
       unsubscribe?.();
     };
   }, []);

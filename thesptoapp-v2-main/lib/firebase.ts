@@ -5,12 +5,14 @@ import {
   getAuth,
   inMemoryPersistence,
   initializeAuth,
+  onAuthStateChanged,
 } from 'firebase/auth';
 // @ts-expect-error getReactNativePersistence exists at runtime via Metro's react-native bundle resolution
 import { getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { Platform } from 'react-native';
+import { appendAuthDiagnostic } from './authDiagnostics';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -51,15 +53,18 @@ function buildReactNativePersistence() {
 
 // Initialize Firebase Auth with platform-appropriate persistence
 let auth: Auth;
+let authReadyPromise: Promise<void> | null = null;
 
 function initAuth(): Auth {
   // ── Web ──
   if (Platform.OS === 'web') {
     try {
+      void appendAuthDiagnostic('firebase:initAuth:web:initializeAuth:start');
       return initializeAuth(app, { persistence: browserLocalPersistence });
     } catch (e: any) {
       if (e.code === 'auth/already-initialized') return getAuth(app);
       console.error('[Firebase] Web auth init failed, using getAuth:', e.message);
+      void appendAuthDiagnostic('firebase:initAuth:web:initializeAuth:error', { code: e.code, message: e.message });
       return getAuth(app);
     }
   }
@@ -69,33 +74,92 @@ function initAuth(): Auth {
   const rnPersistence = buildReactNativePersistence();
   if (rnPersistence) {
     try {
+      void appendAuthDiagnostic('firebase:initAuth:rn:persistence:start', { platform: Platform.OS });
       return initializeAuth(app, { persistence: rnPersistence });
     } catch (e: any) {
       if (e.code === 'auth/already-initialized') return getAuth(app);
       // initializeAuth may have half-registered; fall through to Step 2
       console.warn('[Firebase] initializeAuth with RN persistence failed:', e.message);
+      void appendAuthDiagnostic('firebase:initAuth:rn:persistence:error', { code: e.code, message: e.message });
     }
   }
 
   // Step 2: Try with in-memory persistence (sign-in works, state not persisted)
   try {
+    void appendAuthDiagnostic('firebase:initAuth:rn:inMemory:start', { platform: Platform.OS });
     return initializeAuth(app, { persistence: inMemoryPersistence });
   } catch (e: any) {
     if (e.code === 'auth/already-initialized') return getAuth(app);
     console.warn('[Firebase] initializeAuth with inMemory persistence failed:', e.message);
+    void appendAuthDiagnostic('firebase:initAuth:rn:inMemory:error', { code: e.code, message: e.message });
   }
 
   // Step 3: Last-resort fallback
   console.warn('[Firebase] Using getAuth fallback');
+  void appendAuthDiagnostic('firebase:initAuth:fallback:getAuth');
   return getAuth(app);
 }
 
 try {
   auth = initAuth();
+  void appendAuthDiagnostic('firebase:initAuth:done', { platform: Platform.OS });
 } catch (e) {
   // Absolute last resort — should never happen, but guarantees `auth` is never undefined
   console.error('[Firebase] All auth initialization paths failed:', e);
+  void appendAuthDiagnostic('firebase:initAuth:catastrophic-fallback', {
+    message: e instanceof Error ? e.message : String(e),
+  });
   auth = getAuth(app);
+}
+
+function createAuthReadyPromise(currentAuth: Auth): Promise<void> {
+  const maybeAuthStateReady = (currentAuth as any).authStateReady;
+  if (typeof maybeAuthStateReady === 'function') {
+    return maybeAuthStateReady.call(currentAuth).then(() => undefined).catch(() => undefined);
+  }
+
+  // Compatibility path for SDKs without authStateReady.
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      unsubscribe();
+      resolve();
+    }, 6000);
+
+    const unsubscribe = onAuthStateChanged(
+      currentAuth,
+      () => {
+        clearTimeout(timer);
+        unsubscribe();
+        resolve();
+      },
+      () => {
+        clearTimeout(timer);
+        unsubscribe();
+        resolve();
+      }
+    );
+  });
+}
+
+authReadyPromise = createAuthReadyPromise(auth);
+
+export async function waitForAuthReady(timeoutMs = 10000): Promise<boolean> {
+  if (!authReadyPromise) return true;
+
+  const start = Date.now();
+
+  const timed = new Promise<boolean>((resolve) => {
+    setTimeout(() => resolve(false), timeoutMs);
+  });
+
+  const ready = authReadyPromise.then(() => true).catch(() => false);
+  const result = await Promise.race([ready, timed]);
+  void appendAuthDiagnostic('firebase:authReady', {
+    ready: result,
+    timeoutMs,
+    elapsedMs: Date.now() - start,
+  });
+  return result;
 }
 
 export { auth };

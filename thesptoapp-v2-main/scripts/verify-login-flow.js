@@ -8,11 +8,16 @@
  * Run:  node scripts/verify-login-flow.js
  */
 const https = require('https');
+const tls = require('tls');
+const {
+  FIREBASE_API_KEY,
+  FIREBASE_PROJECT,
+  APPLE_REVIEW_EMAIL,
+  CANONICAL_REVIEW_PASSWORD,
+} = require('./review-credentials');
 
-const FIREBASE_API_KEY = 'AIzaSyCsbVq08esnwhZHFwj9dcEjnAdCnpaSIs0';
-const FIREBASE_PROJECT = 'spot-app-575e9';
-const DEMO_EMAIL = 'apple.review@thespotapp.com';
-const DEMO_PASSWORD = 'AppleReview2026!';
+const DEMO_EMAIL = APPLE_REVIEW_EMAIL;
+const DEMO_PASSWORD = CANONICAL_REVIEW_PASSWORD;
 
 let passed = 0;
 let failed = 0;
@@ -72,6 +77,39 @@ function firestoreRead(uid, idToken) {
     req.on('error', reject);
     req.setTimeout(30000, () => { req.destroy(); reject(new Error('timeout')); });
     req.end();
+  });
+}
+
+function checkTls(hostname) {
+  return new Promise((resolve) => {
+    const socket = tls.connect(
+      {
+        host: hostname,
+        port: 443,
+        servername: hostname,
+        rejectUnauthorized: true,
+      },
+      () => {
+        const cert = socket.getPeerCertificate();
+        const authorized = socket.authorized === true;
+        socket.end();
+        resolve({
+          ok: authorized,
+          detail: authorized
+            ? `authorized cert: ${cert?.subject?.CN || 'unknown CN'}`
+            : socket.authorizationError || 'certificate not authorized',
+        });
+      }
+    );
+
+    socket.setTimeout(10000, () => {
+      socket.destroy();
+      resolve({ ok: false, detail: 'TLS handshake timed out' });
+    });
+
+    socket.on('error', (e) => {
+      resolve({ ok: false, detail: e.message });
+    });
   });
 }
 
@@ -208,6 +246,13 @@ async function main() {
     record('Firebase Auth reachable', false, e.message);
   }
 
+  // ── 9b. TLS / SSL verification ────────────────────────────
+  console.log('\n── 9b. TLS / SSL Verification ───────────────────');
+  const authTls = await checkTls('identitytoolkit.googleapis.com');
+  record('Firebase Auth TLS certificate valid', authTls.ok, authTls.detail);
+  const fsTls = await checkTls('firestore.googleapis.com');
+  record('Firestore TLS certificate valid', fsTls.ok, fsTls.detail);
+
   // ── 10. Code-level static checks ──────────────────────────
   console.log('\n── 10. Static Code Checks ──────────────────────');
   const fs = require('fs');
@@ -228,13 +273,17 @@ async function main() {
   const authSrc = fs.readFileSync(path.join(root, 'lib', 'auth.ts'), 'utf8');
   record('No localhost in auth.ts', !authSrc.includes('localhost'), '');
   record('signIn has auth null-check', authSrc.includes("if (!auth)"), '');
-  record('signIn trims email', authSrc.includes('email.trim()'), '');
+  record('signIn waits for auth readiness', authSrc.includes('waitForAuthReady('), '');
+  record('signIn normalizes email', authSrc.includes('normalizeEmailInput('), '');
+  record('signIn normalizes password', authSrc.includes('normalizePasswordInput('), '');
   record('signIn has 15s timeout', authSrc.includes('15000'), '');
   record('signUp has timeout', authSrc.includes("'Sign up'"), '');
   record('Default error is user-friendly (no raw leak)',
     authSrc.includes("'Something went wrong. Please check your connection and try again.'"), '');
   record('Production error logging',
     authSrc.includes("console.error('[Auth] signIn failed:'"), '');
+  record('Persistent auth diagnostics logging enabled',
+    authSrc.includes("appendAuthDiagnostic('auth:signIn:start'"), '');
 
   // Check sign-in.tsx
   const signInSrc = fs.readFileSync(path.join(root, 'app', '(auth)', 'sign-in.tsx'), 'utf8');
@@ -245,6 +294,8 @@ async function main() {
     signInSrc.includes("[SignIn] Guest mode error"), '');
   record('Production logging in sign-in',
     signInSrc.includes("[SignIn] Login attempt"), '');
+  record('Sign-in screen waits for auth readiness',
+    signInSrc.includes('waitForAuthReady(12000)'), '');
   record('No __DEV__-only logging in sign-in flow',
     !signInSrc.includes('if (__DEV__) console.log(\'Login'), '');
 
