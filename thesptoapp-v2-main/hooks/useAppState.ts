@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { User } from 'firebase/auth';
 import { useAuth } from './useAuth';
 import { useOnboarding } from './useOnboarding';
 
@@ -14,6 +15,9 @@ export interface AppState {
   shouldShowOnboarding: boolean;
   shouldShowAuth: boolean;
   isGuest: boolean;
+  user: User | null;
+  authError: string | null;
+  retryAuthCheck: () => void;
   setGuestMode: (enabled: boolean) => Promise<void>;
 }
 
@@ -22,7 +26,7 @@ export function useAppState(): AppState {
   const [isGuest, setIsGuest] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(true);
   const { hasCompletedOnboarding, isLoading: isOnboardingLoading } = useOnboarding();
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading, error: authError, retryAuthCheck } = useAuth();
 
   useEffect(() => {
     initializeApp();
@@ -98,6 +102,9 @@ export function useAppState(): AppState {
     shouldShowOnboarding,
     shouldShowAuth,
     isGuest,
+    user,
+    authError,
+    retryAuthCheck,
     setGuestMode,
   };
 } 

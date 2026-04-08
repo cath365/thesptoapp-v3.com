@@ -88,8 +88,13 @@ export function usePeriodTracker() {
 
   // Add or update a cycle
   const addOrUpdateCycle = useCallback(async (cycle: Omit<Cycle, 'id'>, id?: string) => {
-    if (!user) return;
+    if (!user) {
+      const message = 'You must be signed in to save cycle data.';
+      setError(message);
+      throw new Error(message);
+    }
     try {
+      setError(null);
       if (id) {
         await updateDoc(doc(db, `users/${user.uid}/cycles`, id), cycle);
       } else {
@@ -97,23 +102,35 @@ export function usePeriodTracker() {
       }
     } catch (err: any) {
       setError(err.message);
+      throw err;
     }
   }, [user]);
 
   // Log a day (symptoms/notes)
   const logDay = useCallback(async (log: Omit<DailyLog, 'id'>) => {
-    if (!user) return;
+    if (!user) {
+      const message = 'You must be signed in to save log data.';
+      setError(message);
+      throw new Error(message);
+    }
     try {
+      setError(null);
       await setDoc(doc(db, `users/${user.uid}/logs`, log.date), log);
     } catch (err: any) {
       setError(err.message);
+      throw err;
     }
   }, [user]);
 
   // Clear all cycles and logs
   const clearAll = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      const message = 'You must be signed in to clear data.';
+      setError(message);
+      throw new Error(message);
+    }
     try {
+      setError(null);
       const cyclesSnap = await getDocs(collection(db, `users/${user.uid}/cycles`));
       const logsSnap = await getDocs(collection(db, `users/${user.uid}/logs`));
       await Promise.all([
@@ -122,6 +139,7 @@ export function usePeriodTracker() {
       ]);
     } catch (err: any) {
       setError(err.message);
+      throw err;
     }
   }, [user]);
 

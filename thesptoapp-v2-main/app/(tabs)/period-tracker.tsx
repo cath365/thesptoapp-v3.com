@@ -237,8 +237,8 @@ export default function PeriodTrackerScreen() {
     try {
       await logDay({ date: logDate, symptoms: logSymptoms, notes: logNotes });
       setShowLogModal(false);
-    } catch {
-      Alert.alert('Error', 'Could not save log. Please try again.');
+    } catch (err: any) {
+      Alert.alert('Error', err?.message || 'Could not save log. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -270,8 +270,10 @@ export default function PeriodTrackerScreen() {
         periodLength: pLen,
       }, existingCycleId);
       setShowCycleModal(false);
-    } catch {
-      Alert.alert('Error', 'Could not save cycle info. Please try again.');
+    } catch (err: any) {
+      const msg = err?.message || 'Could not save cycle info. Please try again.';
+      console.error('[PeriodTracker] Save cycle failed:', msg);
+      Alert.alert('Error', msg);
     } finally {
       setSaving(false);
     }
@@ -527,22 +529,35 @@ export default function PeriodTrackerScreen() {
                 showsVerticalScrollIndicator={false}
               >
                 <Text style={styles.modalTitle}>Edit Cycle Info</Text>
-                <TouchableOpacity onPress={() => setShowStartPicker(true)} style={styles.notesInput}>
-                  <Text style={styles.datePickerText}>{cycleStart ? cycleStart : 'Start Date (YYYY-MM-DD)'}</Text>
-                </TouchableOpacity>
-                {showStartPicker && (
-                  <DateTimePicker
-                    value={cycleStart ? new Date(cycleStart) : new Date()}
-                    mode="date"
-                    display="default"
-                    onChange={(e, date) => {
-                      setShowStartPicker(false);
-                      if (date) setCycleStart(date.toISOString().slice(0, 10));
-                    }}
+                {Platform.OS === 'web' ? (
+                  <TextInput
+                    style={styles.compactInput}
+                    placeholder="Start Date (YYYY-MM-DD)"
+                    value={cycleStart}
+                    onChangeText={setCycleStart}
+                    autoCapitalize="none"
+                    autoCorrect={false}
                   />
+                ) : (
+                  <>
+                    <TouchableOpacity onPress={() => setShowStartPicker(true)} style={styles.datePickerButton}>
+                      <Text style={styles.datePickerText}>{cycleStart ? cycleStart : 'Start Date (YYYY-MM-DD)'}</Text>
+                    </TouchableOpacity>
+                    {showStartPicker && (
+                      <DateTimePicker
+                        value={cycleStart ? new Date(cycleStart) : new Date()}
+                        mode="date"
+                        display="default"
+                        onChange={(e, date) => {
+                          setShowStartPicker(false);
+                          if (date) setCycleStart(date.toISOString().slice(0, 10));
+                        }}
+                      />
+                    )}
+                  </>
                 )}
                 <TextInput
-                  style={styles.notesInput}
+                  style={styles.compactInput}
                   placeholder="Avg Cycle Length (days)"
                   value={String(cycleInfo.avgCycleLength)}
                   onChangeText={v => {
@@ -552,7 +567,7 @@ export default function PeriodTrackerScreen() {
                   keyboardType="numeric"
                 />
                 <TextInput
-                  style={styles.notesInput}
+                  style={styles.compactInput}
                   placeholder="Period Length (days)"
                   value={String(cycleInfo.periodLength)}
                   onChangeText={v => {
@@ -561,18 +576,18 @@ export default function PeriodTrackerScreen() {
                   }}
                   keyboardType="numeric"
                 />
-                <View style={styles.modalActions}>
-                  <TouchableOpacity style={styles.cancelButton} onPress={() => setShowCycleModal(false)} disabled={saving}>
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.saveButton} onPress={handleSaveCycle} disabled={saving}>
-                    {saving ? <ActivityIndicator color={SpotColors.textOnPrimary} /> : <Text style={styles.saveButtonText}>Save</Text>}
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.clearButton} onPress={() => Alert.alert('Clear All Data', 'This will permanently delete all your cycle and symptom data. This cannot be undone.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Clear All', style: 'destructive', onPress: clearAll }])} disabled={saving}>
-                    <Text style={styles.clearButtonText}>Clear All</Text>
-                  </TouchableOpacity>
-                </View>
               </ScrollView>
+              <View style={styles.cycleModalActions}>
+                <TouchableOpacity style={styles.cancelButton} onPress={() => setShowCycleModal(false)} disabled={saving}>
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveButton} onPress={handleSaveCycle} disabled={saving}>
+                  {saving ? <ActivityIndicator color={SpotColors.textOnPrimary} /> : <Text style={styles.saveButtonText}>Save</Text>}
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.clearButton} onPress={() => Alert.alert('Clear All Data', 'This will permanently delete all your cycle and symptom data. This cannot be undone.', [{ text: 'Cancel', style: 'cancel' }, { text: 'Clear All', style: 'destructive', onPress: clearAll }])} disabled={saving}>
+                  <Text style={styles.clearButtonText}>Clear All</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -795,6 +810,14 @@ const styles = StyleSheet.create({
   modalScrollContent: {
     flexGrow: 1,
   },
+  datePickerButton: {
+    backgroundColor: SpotColors.background,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: SpotColors.border,
+  },
   datePickerText: {
     fontSize: 16,
     color: SpotColors.deepPink,
@@ -848,6 +871,26 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     gap: 8,
+  },
+  cycleModalActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 8,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: SpotColors.border,
+  },
+  compactInput: {
+    backgroundColor: SpotColors.background,
+    borderRadius: 16,
+    padding: 16,
+    fontSize: 16,
+    color: SpotColors.deepPink,
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: SpotColors.border,
   },
   saveButton: {
     backgroundColor: SpotColors.rose,

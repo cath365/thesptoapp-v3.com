@@ -92,42 +92,51 @@ export function useFirestoreCollection(
   // Add entry
   const addEntry = async (entry: Omit<FirestoreEntry, "id" | "timestamp">) => {
     if (!collectionPath || collectionPath.trim() === "") {
-      setError("No collection path provided");
-      return;
+      const message = "No collection path provided";
+      setError(message);
+      throw new Error(message);
     }
     try {
+      setError(null);
       await addDoc(collection(db, collectionPath), {
         ...entry,
         timestamp: serverTimestamp(),
       });
     } catch (err: any) {
       setError(err.message);
+      throw err;
     }
   };
 
   // Update entry
   const updateEntry = async (id: string, updates: Partial<FirestoreEntry>) => {
     if (!collectionPath || collectionPath.trim() === "") {
-      setError("No collection path provided");
-      return;
+      const message = "No collection path provided";
+      setError(message);
+      throw new Error(message);
     }
     try {
+      setError(null);
       await updateDoc(doc(db, collectionPath, id), updates);
     } catch (err: any) {
       setError(err.message);
+      throw err;
     }
   };
 
   // Delete entry
   const deleteEntry = async (id: string) => {
     if (!collectionPath || collectionPath.trim() === "") {
-      setError("No collection path provided");
-      return;
+      const message = "No collection path provided";
+      setError(message);
+      throw new Error(message);
     }
     try {
+      setError(null);
       await deleteDoc(doc(db, collectionPath, id));
     } catch (err: any) {
       setError(err.message);
+      throw err;
     }
   };
 

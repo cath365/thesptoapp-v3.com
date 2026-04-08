@@ -17,6 +17,15 @@ function safeStringify(input: unknown): string {
   }
 }
 
+/** Returns false during SSR / Node server-side render where AsyncStorage is unavailable. */
+function canPersist(): boolean {
+  try {
+    return typeof window !== 'undefined';
+  } catch {
+    return false;
+  }
+}
+
 export async function appendAuthDiagnostic(event: string, details?: Record<string, unknown>): Promise<void> {
   const entry: AuthDiagnosticEntry = {
     ts: new Date().toISOString(),
@@ -25,6 +34,8 @@ export async function appendAuthDiagnostic(event: string, details?: Record<strin
   };
 
   console.log('[AuthDiag]', entry.ts, event, details ? safeStringify(details) : '');
+
+  if (!canPersist()) return;
 
   try {
     const existing = await AsyncStorage.getItem(AUTH_LOG_KEY);
@@ -38,6 +49,7 @@ export async function appendAuthDiagnostic(event: string, details?: Record<strin
 }
 
 export async function getAuthDiagnostics(): Promise<AuthDiagnosticEntry[]> {
+  if (!canPersist()) return [];
   try {
     const existing = await AsyncStorage.getItem(AUTH_LOG_KEY);
     if (!existing) return [];
@@ -49,6 +61,7 @@ export async function getAuthDiagnostics(): Promise<AuthDiagnosticEntry[]> {
 }
 
 export async function clearAuthDiagnostics(): Promise<void> {
+  if (!canPersist()) return;
   try {
     await AsyncStorage.removeItem(AUTH_LOG_KEY);
   } catch {

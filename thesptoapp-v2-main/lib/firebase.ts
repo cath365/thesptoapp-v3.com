@@ -125,7 +125,7 @@ function createAuthReadyPromise(currentAuth: Auth): Promise<void> {
     const timer = setTimeout(() => {
       unsubscribe();
       resolve();
-    }, 6000);
+    }, 3000);
 
     const unsubscribe = onAuthStateChanged(
       currentAuth,

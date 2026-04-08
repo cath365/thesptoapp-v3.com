@@ -27,6 +27,12 @@ export default function BookmarksScreen() {
   const { bookmarks, loading: bookmarksLoading } = useBookmarks();
   const { history, loading: historyLoading } = useReadingHistory();
   const { contentMaxWidth } = useResponsiveLayout();
+  const emptyFadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    emptyFadeAnim.setValue(0);
+    Animated.timing(emptyFadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+  }, [activeTab, bookmarks.length, history.length, emptyFadeAnim]);
 
   const navigateToArticle = (articleId: string) => {
     router.push(`/information/article/${articleId}` as any);
@@ -93,12 +99,8 @@ export default function BookmarksScreen() {
   );
 
   const renderEmpty = (message: string, icon: string) => {
-    const fadeAnim = useRef(new Animated.Value(0)).current;
-    useEffect(() => {
-      Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }).start();
-    }, [fadeAnim]);
     return (
-      <Animated.View style={[styles.emptyContainer, { opacity: fadeAnim }]}>
+      <Animated.View style={[styles.emptyContainer, { opacity: emptyFadeAnim }]}> 
         <LinearGradient
           colors={[SpotColors.primaryLight, SpotColors.lavender] as any}
           style={styles.emptyIconCircle}

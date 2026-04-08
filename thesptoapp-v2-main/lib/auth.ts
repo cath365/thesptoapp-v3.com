@@ -36,7 +36,7 @@ export interface SignInData {
 }
 
 function normalizeEmailInput(email: string): string {
-  return email.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+  return email.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toLowerCase();
 }
 
 function normalizePasswordInput(password: string): string {
@@ -85,6 +85,10 @@ function isCredentialError(error: any): boolean {
  * device with an active internet connection and not blocked by any corporate proxy.
  */
 export async function checkConnectivity(): Promise<boolean> {
+  if (Platform.OS === 'web') {
+    return typeof navigator !== 'undefined' ? navigator.onLine : true;
+  }
+
   async function probe(url: string, ms: number): Promise<boolean> {
     try {
       const controller = new AbortController();
@@ -155,12 +159,12 @@ export async function signUp({ email, password, displayName }: SignUpData): Prom
       return { user: null, error: 'Sign up is temporarily unavailable. Please restart the app and try again.' };
     }
 
-    const trimmedEmail = email.trim();
-    console.log('[Auth] signUp attempt for:', trimmedEmail);
-    void appendAuthDiagnostic('auth:signUp:start', { email: trimmedEmail });
+    const normalizedEmail = normalizeEmailInput(email);
+    console.log('[Auth] signUp attempt for:', normalizedEmail);
+    void appendAuthDiagnostic('auth:signUp:start', { email: normalizedEmail });
 
     const userCredential = await withTimeout(
-      createUserWithEmailAndPassword(auth, trimmedEmail, password),
+      createUserWithEmailAndPassword(auth, normalizedEmail, password),
       15000,
       'Sign up'
     );
@@ -318,6 +322,12 @@ export async function signIn({ email, password }: SignInData): Promise<AuthRespo
       return signInWithRestFallback(normalizedEmail, normalizedPassword, startedAt);
     }
   } catch (error: any) {
+    if (isCredentialError(error)) {
+      console.warn('[Auth] signIn credential error:', error?.code || error?.message);
+      const authError = error as AuthError;
+      return { user: null, error: getAuthErrorMessage(authError) };
+    }
+
     // Log in both dev and production so device logs can be inspected
     console.error('[Auth] signIn SDK failed:', error?.code || error?.message || error);
     void appendAuthDiagnostic('auth:signIn:sdkFailed:tryingRest', {
@@ -517,7 +527,7 @@ export async function logOut(): Promise<{ error: string | null }> {
 // Send password reset email
 export async function sendPasswordReset(email: string): Promise<{ error: string | null }> {
   try {
-    await sendPasswordResetEmail(auth, email.trim());
+    await sendPasswordResetEmail(auth, normalizeEmailInput(email));
     return { error: null };
   } catch (error: any) {
     console.error('[Auth] sendPasswordReset error:', error?.code || error?.message || error);
@@ -609,11 +619,11 @@ export async function changePassword(currentPassword: string, newPassword: strin
 function getAuthErrorMessage(error: AuthError): string {
   switch (error.code) {
     case 'auth/user-not-found':
-      return 'No account found with this email address.';
+      return 'This email is not registered yet. Please sign up first.';
     case 'auth/wrong-password':
       return 'Incorrect password.';
     case 'auth/email-already-in-use':
-      return 'An account with this email already exists.';
+      return 'This email has been used before. Please sign in instead.';
     case 'auth/weak-password':
       return 'Password should be at least 6 characters.';
     case 'auth/invalid-email':
@@ -625,7 +635,7 @@ function getAuthErrorMessage(error: AuthError): string {
     case 'auth/configuration-not-found':
       return 'Sign in is temporarily unavailable. Please try again later or contact support.';
     case 'auth/invalid-credential':
-      return 'Invalid email or password. Please try again.';
+      return 'This email or password is incorrect. If this email was registered before, try signing in again or reset your password.';
     case 'auth/user-disabled':
       return 'This account has been disabled. Please contact support.';
     case 'auth/operation-not-allowed':

@@ -1,5 +1,4 @@
 import { SpotColors } from '@/constants/Colors';
-import * as Updates from 'expo-updates';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -33,17 +32,13 @@ export default class ErrorBoundary extends Component<Props, State> {
     console.error('[ErrorBoundary] Component stack:', info.componentStack);
   }
 
-  handleRetry = async () => {
-    if (this.state.isReloading) return;
-    this.setState({ isReloading: true });
-
-    try {
-      // Try a true JS bundle reload first so users don't get stuck on the same crashed tree.
-      await Updates.reloadAsync();
-    } catch (e) {
-      console.error('[ErrorBoundary] reloadAsync failed, falling back to local reset:', e);
-      this.setState({ hasError: false, isReloading: false });
-    }
+  handleRetry = () => {
+    // Reset the React tree instead of calling Updates.reloadAsync().
+    // reloadAsync reloads the exact same bundle, which causes an infinite
+    // crash loop if the error is deterministic. Resetting the error state
+    // re-mounts children, which often resolves transient render errors
+    // (e.g. race conditions during the initial navigation).
+    this.setState({ hasError: false, isReloading: false });
   };
 
   render() {

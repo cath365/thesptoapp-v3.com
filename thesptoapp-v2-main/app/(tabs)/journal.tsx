@@ -10,12 +10,29 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+
+/** Cross-platform shadow that avoids react-native-web deprecation warnings. */
+function boxShadow(color: string, x: number, y: number, opacity: number, blur: number, elevation: number) {
+  if (Platform.OS === 'web') {
+    const [r, g, b] = [color.slice(1, 3), color.slice(3, 5), color.slice(5, 7)].map(h => parseInt(h, 16));
+    return { boxShadow: `${x}px ${y}px ${blur}px rgba(${r},${g},${b},${opacity})` } as any;
+  }
+  return { shadowColor: color, shadowOffset: { width: x, height: y }, shadowOpacity: opacity, shadowRadius: blur, elevation } as any;
+}
+
+function textShadow(color: string, x: number, y: number, blur: number) {
+  if (Platform.OS === 'web') {
+    return { textShadow: `${x}px ${y}px ${blur}px ${color}` } as any;
+  }
+  return { textShadowColor: color, textShadowOffset: { width: x, height: y }, textShadowRadius: blur } as any;
+}
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function JournalScreen() {
@@ -82,17 +99,24 @@ export default function JournalScreen() {
   }
 
   const handleAddEntry = async () => {
-    if (!newEntry.trim() || !user) return;
+    if (!user || isAdding) return;
+    const notes = newEntry.trim();
+    if (!notes) {
+      Alert.alert('Empty entry', 'Please write something before adding your journal entry.');
+      return;
+    }
+
     setIsAdding(true);
     try {
       await addEntry({
-        notes: newEntry.trim(),
+        notes,
       });
-    } catch {
-      // Error is surfaced through the useFirestoreCollection error state
+      setNewEntry("");
+    } catch (err: any) {
+      Alert.alert('Could not save entry', err?.message || 'Please try again.');
+    } finally {
+      setIsAdding(false);
     }
-    setNewEntry("");
-    setIsAdding(false);
   };
 
   const handleDeleteEntry = async (id: string) => {
@@ -401,11 +425,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     margin: 16,
     padding: 16,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 4,
+    ...boxShadow(SpotColors.rose, 0, 4, 0.15, 20, 4),
     position: 'relative',
     overflow: 'hidden',
     borderWidth: 1,
@@ -437,11 +457,7 @@ const styles = StyleSheet.create({
   addButton: {
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 5,
+    ...boxShadow(SpotColors.rose, 0, 4, 0.3, 12, 5),
     zIndex: 1,
   },
   addButtonGradient: {
@@ -465,11 +481,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     marginRight: 8,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 4,
+    ...boxShadow(SpotColors.rose, 0, 4, 0.15, 20, 4),
     position: 'relative',
     overflow: 'hidden',
     borderWidth: 1,
@@ -496,11 +508,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 24,
     backgroundColor: SpotColors.surface,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 4,
+    ...boxShadow(SpotColors.rose, 0, 4, 0.1, 20, 4),
     borderWidth: 1,
     borderColor: SpotColors.border,
   },
@@ -527,11 +535,7 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 5,
+    ...boxShadow(SpotColors.rose, 0, 4, 0.3, 12, 5),
   },
   emptyText: {
     fontSize: 20,
@@ -577,11 +581,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
     marginRight: 8,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
+    ...boxShadow(SpotColors.rose, 0, 2, 0.2, 8, 3),
   },
   saveButtonText: {
     color: SpotColors.surface,
@@ -618,11 +618,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 32,
     alignItems: "center",
     marginBottom: 8,
-    shadowColor: SpotColors.rose,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 5,
+    ...boxShadow(SpotColors.rose, 0, 4, 0.2, 16, 5),
   },
   journalTitle: {
     color: SpotColors.surface,
@@ -630,9 +626,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 8,
     letterSpacing: -0.5,
-    textShadowColor: 'rgba(0,0,0,0.1)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...textShadow('rgba(0,0,0,0.1)', 0, 2, 4),
   },
   journalSubtitle: {
     color: SpotColors.surface,
@@ -646,11 +640,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 20,
     marginBottom: 16,
-    shadowColor: SpotColors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 3,
+    ...boxShadow(SpotColors.primary, 0, 4, 0.1, 16, 3),
     position: 'relative',
     overflow: 'hidden',
     borderWidth: 1,
