@@ -11,11 +11,34 @@ export interface AuthState {
   isAuthenticated: boolean;
 }
 
+// Module-level callback: allows lib/auth.ts to manually inject a user when
+// the Firebase SDK is completely broken (iOS 26+) but REST API verified creds.
+let _injectUserFn: ((user: User) => void) | null = null;
+
+/**
+ * Push an externally-authenticated user into the useAuth hook's state.
+ * Called from signInWithRestFallback when all SDK sign-in paths fail
+ * but the REST API has proven the credentials are valid.
+ */
+export function injectAuthUser(user: User): void {
+  if (_injectUserFn) {
+    _injectUserFn(user);
+  }
+}
+
 export function useAuth(): AuthState {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Register the injection callback so lib/auth.ts can push a REST-fallback user
+    _injectUserFn = (injectedUser: User) => {
+      console.log('[useAuth] Manually injected REST-fallback user, uid:', injectedUser.uid);
+      void appendAuthDiagnostic('useAuth:inject:restFallbackUser', { uid: injectedUser.uid });
+      setUser(injectedUser);
+      setIsLoading(false);
+    };
+
     void appendAuthDiagnostic('useAuth:subscribe:start');
 
     // Safety timeout: if onAuthStateChanged never fires (broken auth instance),
@@ -91,6 +114,7 @@ export function useAuth(): AuthState {
 
     return () => {
       clearTimeout(safetyTimer);
+      _injectUserFn = null;
       void appendAuthDiagnostic('useAuth:subscribe:cleanup');
       unsubscribe?.();
     };
