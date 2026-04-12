@@ -54,7 +54,7 @@ function getAppInitErrorMessage(error: unknown): string {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const { isAppReady, shouldShowOnboarding, shouldShowAuth, user, authError, retryAuthCheck, setGuestMode } = useAppState();
+  const { isAppReady, shouldShowOnboarding, shouldShowAuth, isGuest, user, authError, retryAuthCheck, setGuestMode } = useAppState();
   usePushNotifications(user?.uid ?? null);
   const router = useRouter();
   const segments = useSegments();
