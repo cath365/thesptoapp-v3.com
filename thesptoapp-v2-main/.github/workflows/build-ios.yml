@@ -2,13 +2,13 @@ name: Build iOS App
 
 on:
   workflow_dispatch:  # Manual trigger
-  push:
-    branches:
-      - main
+
+env:
+  WORKING_DIR: ./thesptoapp-v2-main
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
     
     steps:
       - name: Checkout repository
@@ -18,9 +18,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
+        working-directory: ${{ env.WORKING_DIR }}
         run: npm ci
 
       - name: Setup Expo
@@ -29,12 +29,20 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Build iOS app
-        run: eas build --platform ios --local --non-interactive --output ./build/thespotapp.ipa
+      - name: Create build directory
+        run: mkdir -p ./build
+
+      - name: Build iOS app locally
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          echo "Starting LOCAL iOS build (not using EAS cloud)..."
+          eas build --platform ios --profile production --local --non-interactive --output ../build/thespotapp.ipa
+        env:
+          EAS_BUILD_NO_EXPO_GO_WARNING: true
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
           path: ./build/thespotapp.ipa
-          retention-days: 7
+          retention-days: 14
