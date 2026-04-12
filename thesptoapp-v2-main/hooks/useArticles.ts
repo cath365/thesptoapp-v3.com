@@ -19,24 +19,35 @@ export function useArticles() {
       setLoading(!isLoadMore);
       setIsOffline(false);
 
-      let q: Query<DocumentData> = query(
-        collection(db, 'articles'),
-        where('isPublished', '==', true),
-        orderBy('publishedDate', 'desc'),
-        limit(10)
-      );
-
-      if (isLoadMore && lastDoc) {
-        q = query(
+      let snapshot;
+      try {
+        let q: Query<DocumentData> = query(
           collection(db, 'articles'),
           where('isPublished', '==', true),
           orderBy('publishedDate', 'desc'),
-          startAfter(lastDoc),
           limit(10)
         );
+
+        if (isLoadMore && lastDoc) {
+          q = query(
+            collection(db, 'articles'),
+            where('isPublished', '==', true),
+            orderBy('publishedDate', 'desc'),
+            startAfter(lastDoc),
+            limit(10)
+          );
+        }
+
+        snapshot = await getDocs(q);
+      } catch {
+        // Fallback: if composite index is missing, fetch without ordering
+        const fallbackQ: Query<DocumentData> = query(
+          collection(db, 'articles'),
+          limit(20)
+        );
+        snapshot = await getDocs(fallbackQ);
       }
 
-      const snapshot = await getDocs(q);
       let newArticles = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
