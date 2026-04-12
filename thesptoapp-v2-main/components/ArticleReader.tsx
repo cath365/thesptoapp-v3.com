@@ -15,7 +15,28 @@ interface ArticleReaderProps {
   article: Article;
 }
 
-export default function ArticleReader({ article }: ArticleReaderProps) {
+export default function ArticleReader({ article: rawArticle }: ArticleReaderProps) {
+  // Guard against missing/incomplete data from Firestore
+  // Some older articles use a flat "content" markdown string instead of structured "sections"
+  const rawSections = rawArticle.sections ?? [];
+  const sections: ArticleSection[] = rawSections.length > 0
+    ? rawSections
+    : (rawArticle as any).content
+      ? [{ id: 'main', title: rawArticle.title || 'Article', content: (rawArticle as any).content, order: 0 }]
+      : [];
+
+  const article = {
+    ...rawArticle,
+    sections,
+    sources: rawArticle.sources ?? [],
+    tags: rawArticle.tags ?? [],
+    category: rawArticle.category || 'general',
+    difficulty: rawArticle.difficulty || 'beginner',
+    estimatedReadTime: rawArticle.estimatedReadTime || 5,
+    summary: rawArticle.summary || '',
+    featuredImage: rawArticle.featuredImage || '',
+  };
+
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
   const sectionRefs = useRef<{ [key: string]: number }>({});
