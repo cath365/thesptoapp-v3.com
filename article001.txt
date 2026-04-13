@@ -1,0 +1,22 @@
+﻿{
+  "title": "Understanding Your Menstrual Cycle",
+  "imageUrl": "",
+  "summary": "A comprehensive guide to the four phases of your menstrual cycle and what happens in each one.",
+  "viewCount": 0,
+  "updatedAt": {
+    "type": "firestore/timestamp/1.0",
+    "seconds": 1774345117,
+    "nanoseconds": 312000000
+  },
+  "published": true,
+  "content": "## The Four Phases of Your Cycle\n\nYour menstrual cycle is divided into four distinct phases:\n\n### 1. Menstruation (Days 1-5)\nThis is when your period happens. The uterine lining sheds, causing bleeding that typically lasts 3-7 days.\n\n### 2. Follicular Phase (Days 1-13)\nYour body prepares an egg for release. Estrogen levels rise, thickening the uterine lining.\n\n### 3. Ovulation (Day 14)\nA mature egg is released from the ovary. This is when you're most fertile.\n\n### 4. Luteal Phase (Days 15-28)\nThe body prepares for potential pregnancy. If the egg isn't fertilized, hormone levels drop and the cycle begins again.\n\n## Tips for Each Phase\n- **Menstruation:** Rest, stay hydrated, use heat for cramps\n- **Follicular:** Great time for exercise and new projects\n- **Ovulation:** Peak energy ΓÇö good for social activities\n- **Luteal:** Practice self-care, eat balanced meals",
+  "category": "Menstrual Health",
+  "publishedDate": "2026-04-01T00:00:00.000Z",
+  "createdAt": {
+    "type": "firestore/timestamp/1.0",
+    "seconds": 1774345117,
+    "nanoseconds": 312000000
+  },
+  "isPublished": true,
+  "author": "The Spot App Team"
+}

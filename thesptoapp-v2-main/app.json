@@ -21,7 +21,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.chombazm.thespotapp",
-      "buildNumber": "78",
+      "buildNumber": "79",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "The Spot App needs access to your photo library to set your profile picture.",

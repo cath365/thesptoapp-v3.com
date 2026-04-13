@@ -1,5 +1,5 @@
 import SignInRequired from '@/components/SignInRequired';
-import { useAuth } from '@/hooks/useAuth';
+import { useAppState } from '@/hooks/useAppState';
 import { SpotColors } from '@/constants/Colors';
 import { Cycle, DailyLog, usePeriodTracker } from '@/hooks/usePeriodTracker';
 import { Ionicons } from '@expo/vector-icons';
@@ -68,7 +68,7 @@ function isValidDate(date: Date): boolean {
 }
 
 export default function PeriodTrackerScreen() {
-  const { user } = useAuth();
+  const { user } = useAppState();
   const {
     cycles, logs, loading,
     addOrUpdateCycle, logDay, clearAll

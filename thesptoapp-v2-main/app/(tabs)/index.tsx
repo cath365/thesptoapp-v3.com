@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/useAuth";
+import { useAppState } from "@/hooks/useAppState";
 import { useDailyTip } from "@/hooks/useDailyTip";
 import { useLanguage } from "@/hooks/useLanguage";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
@@ -108,7 +108,7 @@ export const INFORMATION_CATEGORIES = [
 ];
 
 export default function HomeScreen() {
-  const { user } = useAuth();
+  const { user } = useAppState();
   const router = useRouter();
   const { t } = useLanguage();
   const dailyTip = useDailyTip();

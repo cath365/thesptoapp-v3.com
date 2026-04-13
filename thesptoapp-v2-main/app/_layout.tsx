@@ -194,8 +194,10 @@ export default function RootLayout() {
     }
   }, [setGuestMode, initData, initAttempt]);
 
-  // Determine if the app is fully ready for user interaction
-  const appFullyReady = !initLoading && !initError && !!initData && !authError && !showSplash;
+  // Determine if the app is fully ready for user interaction.
+  // When in guest mode, ignore authError — the user has explicitly opted to
+  // skip authentication, so a Firebase auth failure must not block the app.
+  const appFullyReady = !initLoading && !initError && !!initData && (!authError || isGuest) && !showSplash;
 
   // Check for OTA updates only after the user is past auth/onboarding.
   const updateChecked = useRef(false);
@@ -294,7 +296,10 @@ export default function RootLayout() {
         <AppInitErrorScreen message="Initialization failed unexpectedly. Please retry." onRetry={handleRetryInit} onSkipToGuest={handleSkipToGuest} />
       </View>
     );
-  } else if (authError) {
+  } else if (authError && !isGuest) {
+    // Only show the auth error overlay when NOT in guest mode.
+    // If the user already activated guest mode, bypass the error screen
+    // so they can use the app without authentication.
     overlay = (
       <View style={styles.overlay}>
         <AppInitErrorScreen message={authError} onRetry={handleRetryAuth} onSkipToGuest={handleSkipToGuest} />

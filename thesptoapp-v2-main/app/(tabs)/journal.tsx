@@ -1,5 +1,5 @@
 import SignInRequired from "@/components/SignInRequired";
-import { useAuth } from "@/hooks/useAuth";
+import { useAppState } from "@/hooks/useAppState";
 import { useLanguage } from "@/hooks/useLanguage";
 import { SpotColors } from "@/constants/Colors";
 import { useFirestoreCollection } from "@/hooks/useFirestore";
@@ -36,7 +36,7 @@ function textShadow(color: string, x: number, y: number, blur: number) {
 }
 
 export default function JournalScreen() {
-  const { user } = useAuth();
+  const { user } = useAppState();
   const { t } = useLanguage();
   const [newEntry, setNewEntry] = useState("");
   const [search, setSearch] = useState("");

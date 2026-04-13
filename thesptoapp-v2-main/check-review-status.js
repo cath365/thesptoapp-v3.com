@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const KEY_ID = 'X79F2H3QXT';
 const ISSUER_ID = '3ddd637a-4279-41fa-8c12-672a3c557cba';
@@ -11,11 +11,10 @@ const KEY_PATH = path.join(__dirname, 'AuthKey_X79F2H3QXT.p8');
 function createToken() {
   const pk = fs.readFileSync(KEY_PATH, 'utf8');
   const now = Math.floor(Date.now() / 1000);
-  return jwt.sign(
-    { iss: ISSUER_ID, iat: now, exp: now + 1200, aud: 'appstoreconnect-v1' },
-    pk,
-    { algorithm: 'ES256', header: { alg: 'ES256', kid: KEY_ID, typ: 'JWT' } }
-  );
+  const header = Buffer.from(JSON.stringify({ alg: 'ES256', kid: KEY_ID, typ: 'JWT' })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ iss: ISSUER_ID, iat: now, exp: now + 1200, aud: 'appstoreconnect-v1' })).toString('base64url');
+  const sig = crypto.sign('SHA256', Buffer.from(header + '.' + payload), { key: pk, dsaEncoding: 'ieee-p1363' });
+  return header + '.' + payload + '.' + sig.toString('base64url');
 }
 
 function api(urlPath) {

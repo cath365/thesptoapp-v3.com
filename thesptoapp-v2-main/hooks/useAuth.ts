@@ -257,7 +257,11 @@ export function useAuth(): AuthState {
             message: error?.message,
             code: (error as any)?.code,
           });
-          finalize(null, getFriendlyErrorMessage(error));
+          // Non-blocking: resolve with null user and NO error string.
+          // Setting an error here would propagate to _layout.tsx as authError
+          // and show an inescapable AppInitErrorScreen overlay. Instead, let
+          // the app proceed — guest mode or sign-in screen will handle it.
+          finalize(null, null);
         }
       );
     } catch (e) {
@@ -265,15 +269,30 @@ export function useAuth(): AuthState {
       void appendAuthDiagnostic('useAuth:subscribe:error', {
         message: e instanceof Error ? e.message : String(e),
       });
-      finalize(null, getFriendlyErrorMessage(e));
+      // Non-blocking: don't set an error that would block the entire app.
+      // Let the user proceed to sign-in or guest mode.
+      finalize(null, null);
     }
+
+    // Capture a reference to the callback we registered so the cleanup
+    // only clears state that belongs to THIS effect instance.  Other
+    // useAuth() instances (e.g. in tab screens) must not wipe out the
+    // injection callback that the root-layout instance registered.
+    const myInjectFn = _injectUserFn;
 
     return () => {
       isActive = false;
       clearTimeout(safetyTimer);
       clearTimeout(fallbackCheckTimer);
-      _injectUserFn = null;
-      _hasInjectedUser = false;
+      // Only clear module-level state if we are the instance that set it.
+      // This prevents tab-screen unmounts from destroying the root layout's
+      // injected user, which caused the "Sign In Required" loop.
+      if (_injectUserFn === myInjectFn) {
+        _injectUserFn = null;
+        // Do NOT reset _hasInjectedUser — if a REST-fallback user was already
+        // injected, it should persist across effect re-runs so that
+        // onAuthStateChanged(null) doesn't overwrite it.
+      }
       void appendAuthDiagnostic('useAuth:subscribe:cleanup');
       unsubscribe?.();
     };

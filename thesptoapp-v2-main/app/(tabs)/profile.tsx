@@ -1,5 +1,5 @@
 import SignInRequired from "@/components/SignInRequired";
-import { useAuth } from "@/hooks/useAuth";
+import { useAppState } from "@/hooks/useAppState";
 import { useLanguage } from "@/hooks/useLanguage";
 import { SpotColors } from "@/constants/Colors";
 import { deleteAccount, logOut, updateDisplayName, changePassword } from "@/lib/auth";
@@ -45,7 +45,7 @@ interface ProfileSettings {
 }
 
 export default function ProfileScreen() {
-  const { user } = useAuth();
+  const { user } = useAppState();
   const { t, language, setLanguage, availableLanguages } = useLanguage();
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
 
